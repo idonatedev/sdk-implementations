@@ -1,0 +1,857 @@
+/*
+* STYLESHEET: iDonate SDK Prototype
+* Based on: Charity Water
+* Benjamin Guthrie, iDonate
+*/
+:root {
+    --gradient-background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.5));
+    --reverse-gradient: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.75));
+    --background-thingie: rgba(0, 0, 0, 0.75);
+    --branded-blue: rgb(0, 128, 255);
+    --custom-gift-bg: rgba(255, 255, 255, 0.75);
+    --standard-margin: 8pt;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    overflow-x: hidden;
+}
+
+/* .grecaptcha-badge {
+    display: none !important;
+} */
+
+#gift-container {
+    background-color: var(--custom-gift-bg);
+    color: rgb(64, 64, 64);
+    border-radius: 12pt;
+    margin:12pt;
+}
+
+#payment{
+    align-self:center;
+}
+
+#paymentAmount{
+    margin-bottom:8pt;
+    margin-top:8pt;
+}
+
+#designation-label{
+    justify-content:flex-end;
+}
+
+.designation-menu{
+    width:100%;
+}
+
+#designation-container{
+    display: flex;
+    justify-content:center;
+    grid-template-columns: repeat(3, 1fr);
+    background-color: rgba(196, 196, 196, 0.25);
+    border-radius: 10pt;
+}
+
+#frequency-container {
+    display: none;
+}
+
+textarea:focus,
+input:focus,
+select:focus {
+    outline: none;
+}
+
+.invalid-data-input{
+    background-color:rgb(255,196,196);
+    transition: 1s;
+}
+
+#the-data {
+    background-image: var(--gradient-background);
+    margin-left: var(--standard-margin);
+    margin-right: var(--standard-margin);
+    margin-bottom: var(--standard-margin);
+    padding: 12pt;
+    color: rgb(220, 220, 220);
+    display: block;
+    border-radius: 10pt 10pt 10pt 10pt;
+    transition: height 1s;
+}
+
+/* #payment{
+    background-image:var(--gradient-background);
+}
+
+#billing{
+    background-image:var(--gradient-background);
+}
+
+#address{
+    background-image:var(--gradient-background);
+}
+
+#card{
+    background-image:var(--gradient-background);
+} */
+
+#affirmation-prompt {
+    font-weight: 800;
+}
+
+/* .slide-button-container{
+    background-image:var(--reverse-gradient);
+    padding-bottom:16pt;
+} */
+
+input {
+    border-radius: 8pt;
+    padding: 6pt;
+    border-style: outset;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+    width:100%;
+}
+
+#dpf-checkbox{
+    width:inherit;
+}
+
+select{
+    display:flex;
+    border-radius: 8pt;
+    padding: 7pt;
+    border-style: outset;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+    width:100%;
+}
+
+label {
+    font-size: 14pt;
+    font-weight: 400;
+}
+
+body {
+    background-image: url('https://cdn.mos.cms.futurecdn.net/veQKQrhqeLXwXHw4Q6qM3N-1024-80.jpg');
+    background-size: 1920px;
+    background-repeat: no-repeat;
+    /* TODO: scaling issue: background changes position on div element resize.  not present on macOS? */
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* form-input */
+
+/*form-slide*/
+.form-slide {
+    /* position:absolute; */
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    flex-wrap: wrap;
+    border-radius: 10pt 10pt 0pt 0pt;
+    transition: opacity 1s;
+    margin-left: var(--standard-margin);
+    margin-right: var(--standard-margin);
+    padding: 12pt;
+}
+
+.slide-inactive {
+    position: fixed;
+    visibility: hidden;
+    top: 0px;
+    opacity: 0;
+    z-index: -3;
+    transition: opacity 1 1s;
+    transition: position 1s;
+}
+
+.slide-active {
+    position: absolute;
+    display: visible;
+    opacity: 1;
+    z-index: 3;
+    transition: opacity 1 1s;
+    transition: position 1s;
+}
+
+#title-section {
+    border-radius: var(--standard-margin);
+    background-color: rgba(255, 255, 255, 0.75);
+    margin: var(--standard-margin);
+    padding: var(--standard-margin);
+}
+
+.amount-confirmation-container {
+    background-color: rgba(0, 0, 0, 0.40);
+    border-radius: 10pt;
+    margin: var(--standard-margin);
+}
+
+.donation-button-security-reassurance {
+    display: block;
+    justify-content: center;
+    margin-left: 48pt;
+    margin-right: 48pt;
+    text-align:center;
+    align-self:center;
+}
+
+.recurring-prompt-message{
+    text-align:center;
+}
+
+.recurring-prompt-button{
+    width:100%;
+    padding:12pt;
+    outline:none;
+}
+
+#recurring-prompt-yes{
+    background-color:var(--branded-blue);
+    color:white;
+    font-weight:500;
+    border-radius:10pt 0pt 0pt 10pt;
+    transition:0.5s;
+}
+
+#recurring-prompt-yes:hover{
+    transition:0.5s;
+    background-color:orange;
+}
+
+#recurring-prompt-yes:active{
+    transition:0.5s;
+    background-color:red;
+}
+
+#recurring-prompt-no{
+    border-radius:0pt 10pt 10pt 0pt;
+    transition:0.5s;
+}
+
+#recurring-prompt-no:hover{
+    background-color:rgb(222,222,222);
+    color:white;
+    transition:0.5s;
+}
+
+.recurring-button-container{
+    display:flex;
+    justify-content:center;
+}
+
+.recurring-prompt-container::before{
+    opacity:0;
+}
+
+.recurring-prompt-container{
+    display:flex;
+    position: absolute;
+    top:72pt;
+    margin:48pt;
+    background-color:rgba(255,255,255,0.9);
+    border-radius:10pt;
+    padding:18pt;
+    visibility:visible;
+    opacity:1;
+    transition:0.5s;
+}
+
+.recurring-prompt-hidden{
+    visibility:hidden;
+    opacity:0;
+    transition:0.5s;
+}
+
+.dpf-section{
+    margin-top:var(--standard-margin);
+    padding-top:var(--standard-margin);
+    display:flex;
+    justify-content: center;
+    align-items:baseline;
+    align-self:center;
+}
+
+#dpf-message{
+    padding-left:calc(var(--standard-margin) * 2);
+}
+
+#dpf-checkbox{
+    padding-right:var(--standard-margin);
+    transform:scale(2);
+}
+
+#new-payment-container {
+    padding-bottom: var(--standard-margin);
+}
+
+#amount-confirmation {
+    margin: calc(var(--standard-margin) + 12pt);
+}
+
+#donation-message {
+    margin-left: 48pt;
+    margin-right: 48pt;
+    padding-top: 12pt;
+    align-self: center;
+    text-align: center;
+    border-radius:10pt;
+    background-color:rgba(0,0,0,0.25);
+}
+
+.form-complete{
+    opacity:0;
+    transition:0.5s;
+    display:none;
+}
+
+#theData.formComplete{
+    opacity:0;
+    transition:0.5s;
+    display:none;
+}
+
+#theData .formComplete{
+    opacity:0;
+    transition:0.5s;
+    display:none;
+}
+
+div#theData.form-complete, .form-complete{
+    opacity:0;
+    transition:0.5s;
+    display:none;
+}
+
+#receipt-header{
+    margin:var(--standard-margin);
+}
+
+.receipt-item{
+    display:block;
+}
+
+.receipt-container{
+    display:none;
+    background-color:rgba(255,255,255,0.7);
+    border-radius:10pt;
+    opacity:0;
+    justify-content:center;
+    text-align:center;
+    padding:12pt;
+    margin:var(--standard-margin);
+}
+
+.donation-button-pressed{
+    width:0%;
+    transition:1s;
+    animation-name: spin;
+    animation-duration: 1000ms;
+    animation-iteration-count:infinite;
+    animation-timing-function:ease-in-out;
+}
+
+@keyframes spin{
+    from{
+        transform:rotate(0deg);
+    }to{
+        transform:rotate(359deg)
+    }
+}
+
+.receipt-active{
+    display:grid;
+    opacity:1;
+    transition:0.5s;
+    visibility:visible;
+    margin:var(--standard-margin);
+    justify-items:center;
+}
+
+.error-text{
+    visibility:hidden;
+    transition:0.25s;
+    opacity:0;
+}
+
+.error-text-active{
+    visibility: visible;
+    transition:0.25s;
+    opacity:1;
+}
+
+#donation-message-text{
+    padding:12pt;
+}
+
+.payment-option-button {
+    border-style: solid;
+    border-width: 2pt;
+    border-color: var(--branded-blue);
+    background-color: rgba(1, 1, 1, 0);
+    color: white;
+    width:100%;
+    font-weight: 700;
+    text-align: center;
+    justify-content:center;
+    text-decoration: none;
+    border-radius: 6pt;
+    display: flex;
+    padding: 8pt;
+    padding-left: 16pt;
+    padding-right: 16pt;
+}
+
+.payment-option-button:active {
+    background-color: red;
+}
+
+.slide-option:active {
+    background-color: red;
+    transition: 0.12s;
+}
+
+.slide-option:hover {
+    background-color: rgb(0, 196, 255);
+    transition: 0.12s;
+}
+
+.slide-option.button-inactive:hover {
+    background-color: rgb(196, 196, 196);
+}
+
+.donation-button-container {
+    display: flex;
+    padding: 12pt;
+    justify-content: center;
+    align-self:center;
+    width:100%;
+}
+
+#the-button {
+    border: solid 3px white;
+    background-color: red;
+    transition: 0.5s;
+    color: white;
+    font-weight: 500;
+    font-size: 18pt;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 12pt;
+    padding: 16pt;
+    width: 50%;
+}
+
+#the-button:hover {
+    background-color: var(--branded-blue);
+    transition: 0.25s;
+}
+
+#the-button:active {
+    background-color: orange;
+    transition: 0.15s;
+}
+
+#amount-options {
+    display: flex;
+    align-self: center;
+}
+
+.amount-confirmation-container {
+    text-align: center;
+    align-self:center;
+    /* background-color:rgba(128,128,128,0.5); */
+}
+
+#amount-confirmation {
+    padding-top: var(--standard-margin);
+    padding-bottom: var(--standard-margin);
+    margin-top: var(--standard-margin);
+    margin-bottom: var(--standard-margin);
+    font-size: 16pt;
+    text-align: center;
+}
+
+.amount-option {
+    border: 2pt;
+    border-style: solid;
+    border-color: rgb(0, 128, 255);
+    background-color: rgba(0, 128, 255, 0);
+    color: white;
+    font-weight: 500;
+    font-size: 18pt;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 8pt;
+    padding: 6pt;
+    margin: 6pt;
+    width: 100%;
+}
+
+.slide-button-container {
+    /*border-radius: top left, top right, bottom right, bottom left*/
+
+    /*
+        PUZZLE FOR TODAY: How to get fixed elements rendering dynamically?
+        SOLVED: Heirarchy.
+    */
+    z-index: 3;
+    display: flex;
+    justify-content: center;
+    vertical-align: middle;
+    background-color: rgba(0, 0, 0, 0);
+    margin-left: var(--standard-margin);
+    margin-right: var(--standard-margin);
+    padding-bottom: var(--standard-margin);
+    border-radius: 0pt 0pt 10pt 10pt;
+}
+
+.slide-option {
+    border: none;
+    background-color: var(--branded-blue);
+    color: white;
+    font-weight: 500;
+    font-size: 18pt;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 8pt;
+    padding: var(--standard-margin);
+    margin: var(--standard-margin);
+    width: 20%;
+}
+
+.amount-option:active {
+    background-color: red;
+}
+
+.test-class {
+    background-color: grey;
+}
+
+.amount-active {
+    background-color: orange;
+    transition: 0.25s;
+}
+
+.frequency-active {
+    color: white;
+    background-color: orange;
+    transition: 0.25s;
+    pointer-events:none;
+}
+
+#new-billing-contact {
+    align-self: center;
+}
+
+#new-billing-contact.container {
+    /* margin-left:24pt;
+    margin-right:24pt; */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background-color: rgba(196, 196, 196, 0.25);
+    border-radius: 10pt;
+}
+
+#new-payment.container {
+    /* margin-left:24pt;
+    margin-right:24pt; */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background-color: rgba(196, 196, 196, 0.25);
+    border-radius: 10pt;
+}
+
+.subsection-header{
+    display:flex;
+    justify-content:center;
+    align-self:center;
+    padding-top:var(--standard-margin);
+    padding-bottom:0pt;
+    font-size:12pt;
+}
+
+h2.section-header {
+    display: flex;
+    justify-content: center;
+    padding-top: 12pt;
+}
+
+.new-form-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 10pt;
+    /* grid-template-columns: repeat(2, 2fr); */
+    padding: var(--standard-margin);
+    padding: var(--standard-margin);
+    align-items: center;
+}
+
+.form-column {
+    align-items: flex-start;
+}
+
+.form-slide {
+    align-items: flex-start;
+}
+
+.row.form-section {
+    align-items: flex-start;
+}
+
+.row.form-item {
+    padding: 8pt;
+    transition: opacity 1s;
+}
+
+.left-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.right-item {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.form-item-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#frequency-options {
+    padding-bottom: 12pt;
+    align-self: center;
+    flex-direction: row;
+}
+
+.button-selected {
+    background-color: rgb(0, 45, 129);
+    color: white;
+}
+
+.button-inactive {
+    background-color: rgb(196, 196, 196);
+    transition:0.5s;
+    opacity:0;
+    visibility:hidden;
+    display:none;
+}
+
+.button-inactive:active {
+    background-color: rgb(196, 196, 196);
+}
+
+.button-inactive:hover {
+    cursor: default;
+}
+
+.field-appear {
+    display: flex;
+}
+
+.field-inactive {
+    display: none;
+}
+
+/*
+    Transition Practice Section
+
+    NOTES:
+        It might be that there is a background element, then have the divs with a 0-alpha background color, and those are the elements that are faded in and out, as opposed to just one element for both background and content.
+        So like, container would be background, nested elements would be the 0-alpha elements.
+*/
+
+.transition-practice-container {
+    padding-top: 48pt;
+    padding-bottom: 48pt;
+    background-image: linear-gradient(rgba(0, 128, 0, 0.5), rgba(128, 0, 0, 0.5));
+}
+
+.practice-slide {
+    position: absolute;
+    /* required for rendering form in same area.  causes lower elements to look weird. */
+}
+
+.practice-slide-inactive {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s;
+}
+
+.practice-slide-active {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.5s;
+}
+
+.transition-practice-buttons-container {
+    display: none;
+}
+
+.transition-practice-container {
+    display: none;
+}
+
+.tribute-hidden{
+    display:none;
+}
+
+#tribute-prompt-text{
+    display:flex;
+}
+
+#tribute-checkbox{
+    width:inherit;
+    padding-right:var(--standard-margin);
+    transform:scale(4);
+    box-shadow:none;
+    padding:12pt;
+    margin:12pt;
+}
+
+#tribute-form{
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.tribute-checkbox-container{
+    width:20%;
+    justify-self:center;
+    box-shadow:none;
+}
+
+.tribute-item-checkbox{
+    justify-self:left;
+    width:auto;
+    transform:scale(2);
+}
+
+.tribute-container{
+    justify-content:center;
+    align-items:center;
+    /* grid-template-columns: repeat(2, 1fr); */
+    background-color: rgba(196, 196, 196, 0.25);
+    border-radius: 10pt;
+    padding-left:var(--standard-margin);
+    padding-right:var(--standard-margin);
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.tribute-prompt{
+    padding:var(--standard-margin);
+    display:flex;
+    width:auto;
+}
+
+.donation-button-inactive{
+    background-color:rgba(196,196,196,0.2) !important;
+    pointer-events:none;
+    transition: 0.5s;
+}
+
+/*
+    Receipt Page Section
+*/
+
+.receipt-image{
+    width: 100%;
+    height: auto;
+    max-width:400px;
+    margin:var(--standard-margin);
+}
+
+/*
+    Media queries go here, since CSS is apparently a scripting language now.
+*/
+@media(max-width:980px) {
+    #new-billing-contact.container {
+
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    #new-payment.container {
+
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
+@media(max-width:770px) {
+    .form-slide {
+        display: flex;
+        flex-direction: column;
+    }
+
+    label {
+        display: flex;
+    }
+}
+
+@media(max-width:685px) {
+    #donation-message{
+        padding-bottom:8pt;
+    }
+
+    #amount-options {
+        flex-direction: column;
+    }
+
+    #amount-options {
+        width: 100%;
+        align-items: center;
+    }
+
+    .amount-option {
+        width: 100%;
+    }
+
+    #donation-message-text {
+        padding-bottom: 0pt;
+    }
+
+    #frequency-options {
+        flex-direction: row;
+        width: 100%;
+    }
+
+    #donation-message {
+        margin-left: var(--standard-margin);
+        margin-right: var(--standard-margin);
+        background-color:rgba(0,0,0,0.6);
+        border-radius:10pt;
+    }
+
+    .payment-option-button {
+        width: 100%;
+    }
+
+    #donate-monthly {
+        padding-top: var(--standard-margin);
+        max-width:500px;
+    }
+
+    #donate-once {
+        padding-top: var(--standard-margin);
+        max-width:500px;
+    }
+
+    #the-button {
+        width: 100%;
+    }
+
+    .right-item {
+        justify-content: center;
+    }
+
+    .slide-option {
+        width: 50%;
+    }
+}
