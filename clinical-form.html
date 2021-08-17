@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html>
+<!--*
+        iDonate SDK Minimalist Giving Form
+        Benjamin Guthrie, Product Coordinator
+        
+        Creates a transaction within iDonate using a minimalist UI.
+        Improved UX and customization options from previous version.
+    *-->
+
+<head>
+    <title>SDK Giving Form &ndash; Clinical</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <!--stylesheet-->
+    <link rel="stylesheet" href="clinical-form-stylesheet.css">
+
+    <!--idonate sdk req's-->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://unpkg.com/@idonatedev/idonate-sdk@1.0.0"></script>
+
+    <!--jquery-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous">
+    </script>
+
+    <!--font-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!--bootstrap-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+
+    <!--fontawesome icons-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <!--idonate client configuration-->
+    <script id="idonate-config">
+        //initial configuration
+        const config = {
+            organizationId: '2aa2e362-51aa-483d-bedd-645ae18cc1f3', //this
+            //chf: fdca0c74-1f83-4b6c-afd9-ac265d8f0a52
+
+            paymentGatewayId: 'f21c29e4-1a8f-46a1-b1d8-01b5ccc2363d', //and this must correspond with one another
+            //chf: cb76276c-b794-4aac-8b51-115571bb65f0
+
+            enableSandboxMode: true,
+            recaptchaType: 'organization', //this is also important.
+            spreedlyEnvironmentKey: 'KCE4DaaycL92NvslhfVUNbWgioC',
+        };
+
+        //initialize the idonate client
+        const idonateClient = new idonate.client(config.organizationId, {
+            enableSandboxMode: config.enableSandboxMode,
+            spreedlyEnvironmentKey: config.spreedlyEnvironmentKey
+        });
+
+        //allocate memory for pertinent data
+        var theData = {
+            billingContact: {
+                salutation: null, //required field, workaround is pass null
+                firstName: "",
+                lastName: "",
+                company: null, //see above
+                email: "",
+                primaryPhone: "",
+            },
+
+            billingAddress: {
+                address1: "",
+                country: "",
+                city: "",
+                state: "",
+                zip: "",
+            },
+
+            paymentAmount: 0.0,
+            currency: 'USD', //hard-coded for now
+            recurringFrequency: "once", //default to once
+            customerMeta: {
+                'field1': 'value1',
+                'work': 'please'
+            },
+            //dpf stuff
+            donorPaidFeeAmount: null,
+            dpfActive: false,
+            dpfAmount: 0.0,
+            dpfTotal: 0.0,
+
+            cardData: {
+                cardNumber: "",
+                expirationMonth: "",
+                expirationYear: ""
+            },
+        };
+
+        //set up amounts for jquery toggle
+        var donationAmounts = {
+            amount1: 10,
+            amount2: 50,
+            amount3: 100,
+            amount4: 500,
+            amount5: "" //custom amount
+        }
+
+        //set up gift levels for scripting
+        var giftLevels = {
+            level1: 20,
+            level2: 100,
+            level3: 200,
+        }
+    </script>
+
+    <!--slideshow tool-->
+    <script id="slideshow-tool">
+        var activeSlide;
+        var slideElements;
+        var promptDisplayed = false; //avoid duplication of recurring prompt
+
+        //initial state
+        window.addEventListener('DOMContentLoaded', function () {
+
+            //gather all elements of class form-slide
+            slideElements = $('.swap-out-item');
+            activeSlide = 0; //corresponds to slideElements[0]
+
+            //deactivate unused option for initial state
+            $('#prev').addClass('button-inactive');
+
+            //all but slideElements[0] is visible.
+            for (var i = 1; i < slideElements.length; i++) {
+                slideElements[i].classList.toggle('section-inactive');
+            }
+
+            //listeners
+            document.getElementById('prev').addEventListener('click', function () {
+                changeSlide(-1);
+            });
+            document.getElementById('next').addEventListener('click', function () {
+                changeSlide(1);
+            });
+        });
+
+        //hide the recurring prompt section
+        function hideRecurringPrompt() {
+            $('#recurring-prompt').addClass('recurring-prompt-hidden');
+        }
+
+        //display the recurring prompt section
+        function displayRecurringPrompt() {
+
+            $('#recurring-prompt-yes').click(function () {
+                $('#recurringFrequency').val('monthly');
+                var recurringEvent = {
+                    data: {
+                        yesOrNo: true
+                    }
+                };
+                $('#once-button').removeClass('frequency-active');
+                $('#monthly-button').addClass('frequency-active');
+
+                updateMonthlyStatusMessage(recurringEvent);
+                hideRecurringPrompt();
+            });
+
+            $('#recurring-prompt-no').click(function () {
+                hideRecurringPrompt();
+            });
+
+            if (promptDisplayed == false) {
+                //render the element, then
+                $('#recurring-prompt').removeClass('recurring-prompt-hidden');
+                promptDisplayed = true;
+            }
+        }
+
+        //previous/next
+        function changeSlide(direction) {
+            // direction: 1 for forward, -1 for backward
+            if (activeSlide + direction < 0) {
+                activeSlide = 0;
+            } else if (activeSlide + direction > slideElements.length - 1) {
+                activeSlide = slideElements.length - 1;
+            } else {
+                slideElements[activeSlide].classList.toggle('section-inactive');
+                slideElements[activeSlide + direction].classList.toggle('section-inactive');
+                activeSlide += direction;
+            }
+
+            if (activeSlide == 0) {
+                //set previous button to gray-out
+                $('#prev').addClass('button-inactive');
+            } else if (activeSlide == slideElements.length - 1) { //-2 because of receipt page
+                //set next button to gray-out
+                $('#next').addClass('button-inactive');
+
+                //say the line bart, say the recurring prompt!
+                if ($('#recurringFrequency').val() == 'once' && parseFloat($('#paymentAmount').val()) > 99) {
+                    displayRecurringPrompt();
+                }
+            } else {
+                //remove inactive state if present
+                if ($('#prev').hasClass('button-inactive')) {
+                    $('#prev').removeClass('button-inactive');
+                } else if ($('#next').hasClass('button-inactive')) {
+                    $('#next').removeClass('button-inactive');
+                }
+            }
+        }
+    </script>
+
+    <!--amount and frequency listeners/handlers-->
+    <script id="bind-buttons">
+        function setVal(element, value) {
+            $("#" + element).val("" + value);
+        }
+
+        function toggleClass(element, cl) {
+            $("#" + element).toggleClass(cl);
+        }
+
+        function clearClasses(clid, clcl) {
+            $("." + clid).removeClass(clcl);
+        }
+
+        //bind the buttons
+        document.addEventListener('DOMContentLoaded', function () {
+
+            //bind the custom amounts
+            $('#amount1').click(function () {
+                clearClasses('amount-option', 'amount-active');
+                setVal('paymentAmount', donationAmounts.amount1);
+                setVal('custom-amount-text', donationAmounts
+                .amount1); //these two keep running into each other
+                toggleClass('amount1', 'amount-active');
+                $('#gift-container').addClass('field-inactive');
+                updateDPFTotal();
+                updateGiftsAvailable();
+            });
+            $('#amount2').click(function () {
+                clearClasses('amount-option', 'amount-active');
+                setVal('paymentAmount', donationAmounts.amount2);
+                setVal('custom-amount-text', donationAmounts.amount2);
+                toggleClass('amount2', 'amount-active');
+                $('#gift-container').addClass('field-inactive');
+                updateDPFTotal();
+                updateGiftsAvailable();
+            });
+            $('#amount3').click(function () {
+                clearClasses('amount-option', 'amount-active');
+                setVal('paymentAmount', donationAmounts.amount3);
+                setVal('custom-amount-text', donationAmounts.amount3);
+                toggleClass('amount3', 'amount-active');
+                $('#gift-container').addClass('field-inactive');
+                updateDPFTotal();
+                updateGiftsAvailable();
+            });
+            $('#amount4').click(function () {
+                clearClasses('amount-option', 'amount-active');
+                setVal('paymentAmount', donationAmounts.amount4);
+                setVal('custom-amount-text', donationAmounts.amount4);
+                toggleClass('amount4', 'amount-active');
+                $('#gift-container').addClass('field-inactive');
+                updateDPFTotal();
+                updateGiftsAvailable();
+            });
+            $('#amount5').click(function () {
+                clearClasses('amount-option', 'amount-active');
+                setVal('paymentAmount', "20");
+                toggleClass('amount5', 'amount-active');
+                $('#gift-container').removeClass('field-inactive');
+                updateDPFTotal();
+            });
+
+            //bind the frequencies
+            $('#once-button').click(function () {
+                clearClasses('frequency-option-button', 'frequency-active');
+                setVal('recurringFrequency', 'once');
+                toggleClass('once-button', 'frequency-active');
+                theData.recurringFrequency =
+                'once'; //redundant, as fields are passed to theData at run-time
+            });
+            $('#monthly-button').click(function () {
+                clearClasses('frequency-option-button', 'frequency-active');
+                setVal('recurringFrequency', 'monthly');
+                toggleClass('monthly-button', 'frequency-active');
+                theData.recurringFrequency =
+                'monthly'; //redundant, as fields are passed to theData at run-time
+            });
+
+            //initial gift amount
+            $('#text-gift-amount').text("$" + $('#paymentAmount').val());
+            $('#amount-confirmation-text').text("$" + $('#paymentAmount').val());
+
+            //tribute section hide/show
+            $('#tribute-checkbox').on('change', function () {
+                $('#tribute-form').toggleClass('tribute-hidden');
+            });
+        });
+    </script>
+
+    <!--donor pays fee functions-->
+    <script id="dpf-helper">
+        //bind toggle action to checkbox
+        //calculate dpf amount
+        var dpfPercentage = 0.08; //8%
+        var dpfCalculatedPercentage;
+        var newTotal;
+
+        //calculate total
+        function updateDPFTotal() {
+            //
+            dpfCalculatedPercentage = parseFloat(dpfPercentage * parseFloat($('#paymentAmount').val())).toFixed(2);
+            $('#dpf-amount').text("$" + dpfCalculatedPercentage);
+
+            //trying to get that dpf bug fixed
+            if ($('#dpf-checkbox').prop('checked')) {
+                var activeAmount = parseFloat($('.amount-active')[0].innerHTML.slice(1));
+                $('#paymentAmount').val(
+                    activeAmount + parseFloat(dpfCalculatedPercentage)
+                );
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', function () {
+            updateDPFTotal();
+
+            $('#dpf-checkbox').click(function () {
+                if ($('#dpf-checkbox').prop('checked')) {
+                    theData.donorPaidFeeAmount = dpfCalculatedPercentage;
+                    $('#paymentAmount').val(
+                        (parseFloat($('#custom-amount-text').val()) + parseFloat(
+                            dpfCalculatedPercentage)).toFixed(2)
+                    );
+                    updatePaymentAmount();
+                } else {
+                    theData.donorPaidFeeAmount = null;
+                    var originalAmount = $('.amount-active')[0].innerHTML.slice(1); //this solved the dpf bug
+                    if (originalAmount == "ustom") {
+                        //really really hacky way to go about this.
+                        //basically if its a 1-slice of your custom button's innerHTML prop.
+                        originalAmount = "20";
+                    }
+                    $('#paymentAmount').val(
+                        $('#custom-amount-text').val()
+                    );
+                    updatePaymentAmount();
+                }
+            });
+        });
+    </script>
+
+    <!--form wrapper.  one of the most important pieces of this entire shabangabang.-->
+    <script id="form-wrapper">
+        // helper method to extract a JS object from a DOM form
+        function wrapForm(formId, func) {
+            let form = document.getElementById(formId);
+
+            form.onsubmit = function (event) {
+                const formData = {};
+                event.preventDefault();
+
+                for (let i = 0; i < form.elements.length; ++i) {
+                    if (form.elements[i].name) {
+                        // convert dashed names into nested data (billingContact-email -> billingContact['email'])
+                        let root = formData;
+                        const path = form.elements[i].name.split('-');
+                        const value = form.elements[i].value;
+
+                        path.slice(undefined, -1).forEach(function (key) {
+                            if (root[key] === undefined) {
+                                root[key] = {};
+                            }
+
+                            root = root[key];
+                        });
+
+                        // assign value to leaf
+                        root[path[path.length - 1]] = value;
+                    }
+                }
+
+                // call func with unpacked formData
+                func(formData);
+            };
+        }
+    </script>
+
+    <!--update data, then springboard into grecaptcha.execute()-->
+    <script id="update-data">
+        function updateData(dataIn) {
+
+            updateGiftsAvailable(); //prevents manual radio button checking exploit
+
+            theData.billingContact = dataIn.billingContact;
+            theData.billingAddress = dataIn.billingAddress;
+            theData.paymentAmount = dataIn.paymentAmount;
+            //theData.currency = dataIn.currency;
+            theData.recurringFrequency = dataIn.recurringFrequency;
+            theData.customerMeta = dataIn.customerMeta;
+            //theData.cardData = dataIn.cardData;  //infosec: nope
+
+            //dpf amount is assigned in script id="dpf-helper"
+            if ($('#dpf-checkbox').prop('checked') == true) {
+                theData.donorPaidFeeAmount = dpfCalculatedPercentage;
+            } else {
+                theData.donorPaidFeeAmount = 0;
+            }
+
+            //tribute checkbox logic
+            if ($('#tribute-checkbox').prop('checked') == true) {
+                theData.tribute = dataIn.tribute;
+            } else {
+                //do nothing, as tribute is an optional value, and a null pass may cause ruckus
+            }
+
+            //designation
+            theData.designations = {
+                id: dataIn.designations.id,
+                amount: theData.paymentAmount
+            };
+
+            console.log(theData);
+
+            setButtonPressed(); //spinny spinny
+
+            //send the payload
+            grecaptcha.execute();
+        }
+    </script>
+
+    <!--API call wait animation-->
+    <script id="button-animation">
+        function setButtonPressed() {
+            $('#the-button').addClass('donation-button-pressed');
+            $('#the-button').text('');
+            $('#the-button').css('width', '0%');
+        }
+    </script>
+
+    <!--receipt-->
+    <script id="receipt-script">
+        /*
+         *   Sets initial form to invisible.
+         *   Assigns data to receipt DOM elements.
+         *   Sets receipt to visible.
+         */
+
+        function renderReceiptElements(dataIn) {
+            //accepts CreateTransactionResult object as argument.
+
+            //get date
+            var date = new Date();
+            var ddmmyyyy = [
+                String(date.getMonth() + 1),
+                String(date.getDate()),
+                date.getFullYear()
+            ];
+            var dateText = ddmmyyyy[0] + '/' + ddmmyyyy[1] + '/' + ddmmyyyy[2];
+
+            //name
+            $('#receipt-name-text').text("" + dataIn._raw_response.donor.contact.firstname + " " + dataIn._raw_response
+                .donor.contact.lastname);
+
+            //date
+            $('#receipt-date-text').text("" + dateText);
+
+            //amount
+            $('#receipt-gift-text').text("$" + dataIn._raw_response.transaction.total_value);
+
+            //recurring
+            $('#receipt-frequency-text').text("" + dataIn._raw_response.form_data.frequency);
+
+            //transaction id
+            // $('#receipt-transactionID-text').text("" + dataIn.transactionId);
+
+            //truncated card
+            $('#receipt-card-text').text("" + theData.truncatedCardData);
+
+            //set initial form to invisible
+            $('#transaction-data').addClass('form-complete');
+            $('#transaction-data').css('display', 'none'); //for some reason, addClass doesn't do the trick, so...
+
+            //set receipt to visible
+            $('.receipt-container').addClass('receipt-active');
+            //for some reason there must be explicit css here 
+            $('.receipt-container').css('display', 'block');
+            $('.receipt-container').css('opacity', '1');
+        }
+    </script>
+
+    <!--wrap forms, set initial dynamic values-->
+    <script id="setup">
+        function updatePaymentAmount() { //used for updating real-time messages
+            $('#text-gift-amount').text("$" + $('#paymentAmount').val());
+            $('#amount-confirmation-text').text(" $" + $('#paymentAmount').val());
+        }
+
+        function updateMonthlyStatusMessage(event) {
+            if (event.data.yesOrNo == true) {
+                $('#monthly-or-no').text("monthly");
+                $('#confirmation-monthly-or-no').text("monthly");
+            } else if (event.data.yesOrNo == false) {
+                $('#monthly-or-no').text("");
+                $('#confirmation-monthly-or-no').text("");
+            } else {
+                $('#monthly-or-no').text("");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            wrapForm('transaction-data', updateData);
+
+            document.getElementById('paymentAmount').value = donationAmounts.amount2;
+            document.getElementById('custom-amount-text').value = donationAmounts
+            .amount2; //set payment default to avoid errors at runtime
+
+            $('.amount-option').click(updatePaymentAmount); //this works
+            $('#paymentAmount').blur(updatePaymentAmount); //used for custom amounts.  bug fix: 'input' listener was causing a ton of calls to the updater.
+
+            $('#paymentAmount').on('input', updateDPFTotal); //used for dpf on custom amounts
+            $('#amount5').off('click', updatePaymentAmount); //deactivate listener for custom
+
+            //custom amount logic
+            $('#amount5').on('click', function () {
+                $('#custom-amount').removeClass('section-inactive');
+            });
+            $('#amount4').on('click', function () {
+                $('#custom-amount').addClass('section-inactive');
+            });
+            $('#amount3').on('click', function () {
+                $('#custom-amount').addClass('section-inactive');
+            });
+            $('#amount2').on('click', function () {
+                $('#custom-amount').addClass('section-inactive');
+            });
+            $('#amount1').on('click', function () {
+                $('#custom-amount').addClass('section-inactive');
+            });
+
+            $('#custom-amount-text').blur(function () {
+                //UPDATE 7/30/21: CUSTOM AMOUNT VALIDATION
+                if(validateCustomAmount($('#custom-amount-text').val()) == true){
+                    $('#paymentAmount').val($('#custom-amount-text').val());
+                    $('#custom-amount-text').removeClass('invalid-data-input');
+                    updatePaymentAmount();
+                    updateDPFTotal();
+                    updateGiftsAvailable();
+                }else{
+                    $('#custom-amount-text').addClass('invalid-data-input');
+                }
+                
+            });
+
+            $('#monthly-button').on('click', {
+                yesOrNo: true
+            }, updateMonthlyStatusMessage);
+            $('#once-button').on('click', {
+                yesOrNo: false
+            }, updateMonthlyStatusMessage);
+
+            updatePaymentAmount();
+
+        }); //REMEMBER: Explicitly type the buttons as type="button", otherwise it will default to type="submit"
+    </script>
+
+    <!--validation tools-->
+    <script id="validators">
+        //validate phone number
+        function validatePhoneNumber(numberIn) {
+            var phoneRegex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+
+            if (numberIn.match(phoneRegex)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        //validate email address
+        function validateEmail(email) {
+            const re =
+                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(String(email).toLowerCase());
+        }
+
+        //validate card number
+        function validateCreditCardNumber(numberIn) {
+
+            var ccNum = numberIn;
+            var visaRegEx = /^(?:4[0-9]{12}(?:[0-9]{3})?)$/;
+            var mastercardRegEx = /^(?:5[1-5][0-9]{14})$/;
+            var amexpRegEx = /^(?:3[47][0-9]{13})$/;
+            var discovRegEx = /^(?:6(?:011|5[0-9][0-9])[0-9]{12})$/;
+            var isValid = false;
+
+            if (visaRegEx.test(ccNum)) {
+                isValid = true;
+            } else if (mastercardRegEx.test(ccNum)) {
+                isValid = true;
+            } else if (amexpRegEx.test(ccNum)) {
+                isValid = true;
+            } else if (discovRegEx.test(ccNum)) {
+                isValid = true;
+            }
+
+            if (isValid) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        //validate payment amount
+        function validateCustomAmount(valIn) {
+            return /^-?\d*\.?\d*$/.test(valIn);
+        }
+
+        function validateZip(valIn) {
+            return /\b\d{5}\b/g.test(valIn);
+        }
+
+        function checkIfBlank(valIn) {
+            if (valIn === "" && valIn != undefined) {
+                //yes is blank
+                return true;
+            } else {
+                //no not blank
+                return false;
+            }
+        }
+
+        function validateAllFields() {
+            var allValid = true;
+            var elements = $('.required-field');
+            var invalids = $('.invalid-data-input');
+
+            //check for blanks
+            for (var i = 0; i < elements.length; i++) {
+                if (elements[i].value == "") {
+                    allValid = false;
+                }
+            }
+
+            //check for invalids
+            if (invalids.length > 0) {
+                allValid = false;
+            }
+
+            return allValid;
+        }
+
+        //individual field listeners
+        window.addEventListener('DOMContentLoaded', function () {
+            /*
+             *  VALIDATOR FOR DONATION BUTTON 
+             */
+            $('.required-field').focusout(function () {
+                //validate all fields!
+                if (validateAllFields() == true) {
+                    //we're good.
+                    $('#the-button').removeClass('donation-button-inactive');
+                } else {
+                    //nope.
+                    $('#the-button').addClass('donation-button-inactive');
+                }
+            });
+            /*
+                 Redundant focus checker to get things done in one go.  Probably a better way, but this way works.
+            */
+            $('.required-field').focusin(function () {
+                //validate all fields!
+                if (validateAllFields() == true) {
+                    //we're good.
+                    $('#the-button').removeClass('donation-button-inactive');
+                } else {
+                    //nope.
+                    $('#the-button').addClass('donation-button-inactive');
+                }
+            });
+
+
+            /*
+             *   INDIVIDUAL VALIDATORS
+             */
+
+            $('#billingAddress-city').blur(function () {
+                if (checkIfBlank($('#billingAddress-city').val()) == true) {
+                    //blank value, invalid
+                    $('#billingAddress-city').addClass('invalid-data-input');
+                } else {
+                    //not invalid
+                    $('#billingAddress-city').removeClass('invalid-data-input');
+                }
+            });
+
+            $('#billingAddress-country').blur(function () {
+                if (checkIfBlank($('#billingAddress-country').val()) == true) {
+                    //blank value, invalid
+                    $('#billingAddress-country').addClass('invalid-data-input');
+                } else {
+                    //not invalid
+                    $('#billingAddress-country').removeClass('invalid-data-input');
+                }
+            });
+
+            $('#billingAddress-address1').blur(function () {
+                if (checkIfBlank($('#billingAddress-address1').val()) == true) {
+                    //blank value, invalid
+                    $('#billingAddress-address1').addClass('invalid-data-input');
+                } else {
+                    //not invalid
+                    $('#billingAddress-address1').removeClass('invalid-data-input');
+                }
+            });
+
+            $('#billingContact-lastName').blur(function () {
+                if (checkIfBlank($('#billingContact-lastName').val()) == true) {
+                    //blank value, invalid
+                    $('#billingContact-lastName').addClass('invalid-data-input');
+                } else {
+                    //not invalid
+                    $('#billingContact-lastName').removeClass('invalid-data-input');
+                }
+            });
+
+            $('#billingContact-firstName').blur(function () {
+                if (checkIfBlank($('#billingContact-firstName').val()) == true) {
+                    //blank value, invalid
+                    $('#billingContact-firstName').addClass('invalid-data-input');
+                } else {
+                    //not invalid
+                    $('#billingContact-firstName').removeClass('invalid-data-input');
+                }
+            });
+
+            $('#billingAddress-zip').blur(function () {
+                if (validateZip($('#billingAddress-zip').val()) == true) {
+                    //valid
+                    console.log('zip code valid: ', $('#billingAddress-zip').val());
+                    $('#billingAddress-zip').removeClass('invalid-data-input');
+                } else {
+                    //invalid
+                    console.log('zip code invalid: ', $('#billingAddress-zip').val());
+                    $('#billingAddress-zip').addClass('invalid-data-input');
+                }
+            });
+
+            $('#paymentAmount').blur(function () {
+                console.log('validating payment amount');
+                if (validateCustomAmount($('#paymentAmount').val()) ===
+                    true /* //TODO 7-9 || checkIfBlank($('#paymentAmount').val())== false*/ ) {
+                    //valid
+                    console.log('valid payment amount: ', $('#paymentAmount').val());
+                    $('#paymentAmount').removeClass('invalid-data-input');
+                } else {
+                    //the opposite of valid
+                    console.log('invalid payment amount: ', $('#paymentAmount').val());
+                    $('#paymentAmount').addClass('invalid-data-input');
+                }
+            });
+
+            $('#billingContact-primaryPhone').blur(function () {
+                console.log('validating phone number');
+                if (validatePhoneNumber($('#billingContact-primaryPhone').val()) === true) {
+                    //all good buddy
+                    $('#billingContact-primaryPhone').removeClass('invalid-data-input');
+                } else {
+                    //not all good.  put a red border around it and set valid to false.
+                    $('#billingContact-primaryPhone').addClass('invalid-data-input');
+                }
+            });
+
+            $('#billingContact-email').blur(function () {
+                console.log('validating email.');
+                if (validateEmail($('#billingContact-email').val()) === true) {
+                    //yep, we good
+                    $('#billingContact-email').removeClass('invalid-data-input');
+                } else {
+                    $('#billingContact-email').addClass('invalid-data-input');
+                }
+            });
+
+            $('#cardData-cardNumber').blur(function () {
+                console.log('validating credit card.');
+                if (validateCreditCardNumber($('#cardData-cardNumber').val()) === true) {
+                    $('#cardData-cardNumber').removeClass('invalid-data-input');
+
+                } else {
+                    $('#cardData-cardNumber').addClass('invalid-data-input');
+
+                }
+            });
+        });
+    </script>
+
+    <!--scripts to help with gift grey-outs etc-->
+    <script id="gift-handler">
+        document.addEventListener('DOMContentLoaded',function(){
+            updateGiftsAvailable();
+            console.log('initial gifts assigned.');
+            //update: thank you gifts
+            
+            $('#paymentAmount').on('change', function(){
+                updateGiftsAvailable();
+            });
+
+            $('#gift-opt-out').on('click', function(){
+                if($('#gift-opt-out').prop('checked') == true){
+                    $('#gl1').prop('checked',false);
+                    $('#gl2').prop('checked',false);
+                    $('#gl3').prop('checked',false);
+                }
+            })
+
+            //if radial is selected, uncheck box
+            $('#gl1').on('click', function(){$('#gift-opt-out').prop('checked',false)});
+            $('#gl2').on('click', function(){$('#gift-opt-out').prop('checked',false)});
+            $('#gl3').on('click', function(){$('#gift-opt-out').prop('checked',false)});
+
+            //this doesnt fix the console exploit
+            // $('#gl1').on('change', updateGiftsAvailable);
+            // $('#gl2').on('change', updateGiftsAvailable);
+            // $('#gl3').on('change', updateGiftsAvailable);
+            
+            console.log('gift setup complete');
+        })
+        //grey out levels below current paymentAmount value.
+        function updateGiftsAvailable(){
+
+            /*
+                    TODO: patch exploit: $('#glX').prop('checked',true);
+                        -possible solutions-
+                            - run logic on radio button change
+                            - run logic at runtime [x]
+                            - make another validator for the thank you gift section
+                            - whatever the hell this is that lets you disable the console
+                            (function() {
+                                try {
+                                    var $_console$$ = console;
+                                    Object.defineProperty(window, "console", {
+                                        get: function() {
+                                            if ($_console$$._commandLineAPI)
+                                                throw "Sorry, for security reasons, the script console is deactivated on netflix.com";
+                                            return $_console$$
+                                        },
+                                        set: function($val$$) {
+                                            $_console$$ = $val$$
+                                        }
+                                    })
+                                } catch ($ignore$$) {
+                                }
+                            })();
+
+                    -original fix: the prop(checked) thing keeps users from selecting the big gift, then changing the donation amount, thereby getting the big gift for the small donation.-
+                */
+
+            var currentLevel = parseFloat($('#paymentAmount').val());
+            
+            //set inactives
+            if(currentLevel < giftLevels.level3){
+                $('#gift-level-3').addClass('gift-inactive');
+                $('#gi3').addClass('gift-inactive');
+                $('#gl3').prop('checked',false);
+                
+            }
+            if(currentLevel < giftLevels.level2){
+                $('#gift-level-2').addClass('gift-inactive');
+                $('#gi2').addClass('gift-inactive');
+                $('#gl2').prop('checked',false);
+            }
+            if(currentLevel < giftLevels.level1){
+                $('#gift-level-1').addClass('gift-inactive');
+                $('#gi1').addClass('gift-inactive');
+                $('#gl1').prop('checked',false);
+            }
+
+            //set actives
+            if(currentLevel >= giftLevels.level1){
+                $('#gift-level-1').removeClass('gift-inactive');
+                $('#gi1').removeClass('gift-inactive');
+            }
+            if(currentLevel >= giftLevels.level2){
+                $('#gift-level-2').removeClass('gift-inactive');
+                $('#gi2').removeClass('gift-inactive');
+            }
+            if(currentLevel >= giftLevels.level3){
+                $('#gift-level-3').removeClass('gift-inactive');
+                $('#gi3').removeClass('gift-inactive');
+            }
+        }
+    </script>
+
+    <script id="errorHandler">
+        function handleTheError(e) {
+            $('.error-text').text('' + e);
+            $('.error-text').addClass('error-text-active');
+        }
+    </script>
+
+    <!--recaptcha callback-->
+    <script id="recaptcha-callback">
+        function recaptchaCallback(recaptchaToken) {
+            try {
+                //begin process
+                idonateClient.tokenizeSpreedlyCreditCard({
+                    contact: theData.billingContact,
+                    address: theData.billingAddress,
+                    //card: theData.cardData //infosec:nope
+                    card:{
+                        cardNumber: $('#cardData-cardNumber').val(),
+                        expirationMonth: $('#cardData-expirationMonth').val(),
+                        expirationYear: $('#cardData-ExpirationYear').val()
+                    }
+                }).then((tokenResult) => {
+                    return idonateClient.createPaymentMethod({
+                        //RecaptchaSecuredRequest type
+                        recaptchaType: config.recaptchaType,
+                        recaptchaToken: recaptchaToken,
+
+                        //CreatePaymentMethodRequest type
+                        paymentGatewayId: config.paymentGatewayId,
+                        paymentMethodType: 'credit_card',
+                        paymentMethodToken: tokenResult,
+                        contact: theData.billingContact,
+                        address: theData.billingAddress
+                    })
+                }).then((paymentMethodResult) => {
+                    var DOMgiftId;
+                    var giftOptOut;
+
+                    if($('#gift-opt-out').prop('checked') == true){
+                        DOMgiftId = null;
+                        giftOptOut = true;
+                    }else{
+                        DOMgiftId = $('input[name="gift-option"]:checked').val();
+                        giftOptOut = false;
+                    }
+
+                    return idonateClient.createTransaction({
+                        //RecaptchaSecuredRequest type
+                        recaptchaType: config.recaptchaType,
+                        recaptchaToken: recaptchaToken,
+
+                        //CreateTransactionRequest type
+                        paymentGatewayId: config.paymentGatewayId,
+                        paymentMethodId: paymentMethodResult.paymentMethodId,
+                        recurringFrequency: theData.recurringFrequency,
+                        paymentAmount: theData.paymentAmount,
+                        donorPaidFeeAmount: theData
+                        .donorPaidFeeAmount, //optional field, null if not used
+                        designations: theData.designations,
+                        currency: theData.currency,
+                        billingContact: theData.billingContact,
+                        billingAddress: theData.billingAddress,
+                        customerMeta: {
+                            pleaseWork: "please"
+                        }, //this cannot be plaintext.  has to be an object.  so in practice, probably need to use the delineator to go from form to object.
+                        recaptchaToken: recaptchaToken,
+                        corporateMatchingId: -1, //this is fine apparently
+
+                        //TODO: Assign Gift
+                        giftId: DOMgiftId, //null if opt-out
+                        giftSkipped: giftOptOut, //explicit logic
+                    })
+                }).then((createTransactionResult) => {
+                    console.log(createTransactionResult);
+
+                    theData.truncatedCardData = "****" + $('#cardData-cardNumber').val().slice(12,16); //for use in receipt page
+                    //theData.cardData = null; //'stonks' guy but its 'secur'
+
+                    renderReceiptElements(createTransactionResult);
+                })
+            } catch (e) {
+                handleTheError(e);
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <!--grecaptcha using google's test key.  test organization has secret key already configured.  in production, the keys will be configured via the recaptcha admin account, with the secret key configured on the back-end of the client's database.-->
+    <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" data-callback="recaptchaCallback"
+        data-size="invisible"></div>
+    <div id="modular-container">
+        <!--you can put this div anywhere and it'll still look good.-->
+        <form id="transaction-data" autocomplete="on">
+            <!--this form passes data to the idonate client.-->
+            <div class="form-section">
+                <!--STATIC SECTION-->
+                <!-- <h3 class="subsection-header">Amount</h3> -->
+                <div id="amount-frequency-wrapper">
+                    <h2 class="section-header">Make Your Donation</h2>
+                    <div id="amount-options">
+                        <!--4 set amounts, 1 custom-->
+                        <button type="button" id="amount1" class="amount-option">$10</button>
+                        <button type="button" id="amount2" class="amount-option amount-active">$50</button>
+                        <!--default value-->
+                        <button type="button" id="amount3" class="amount-option">$100</button>
+                        <button type="button" id="amount4" class="amount-option">$500</button>
+                        <button type="button" id="amount5" class="amount-option custom">Custom</button>
+                    </div>
+
+                    <!--hidden fields-->
+                    <div id="custom-amount" class="section-inactive">
+                        <!--hidden by default.-->
+                        <label for="custom-amount-text">Custom Amount</label>
+                        <input id="custom-amount-text">
+                        <!--not the actual payment field-->
+                    </div>
+                    <div id="payment-amount" class="section-inactive">
+                        <input id="paymentAmount" name="paymentAmount">
+                    </div>
+                    <div id="recurring-frequency" class="section-inactive">
+                        <input id="recurringFrequency" name="recurringFrequency" value="once">
+                    </div>
+
+                    <!-- <h3 class="subsection-header">Frequency</h3> -->
+                    <div id="frequency-options">
+                        <!--once and monthly-->
+                        <button type="button" id="once-button"
+                            class="frequency-option-button frequency-active">Once</button>
+                        <button type="button" id="monthly-button" class="frequency-option-button">Monthly</button>
+                    </div>
+                </div>
+                    <!--BEGIN DYNAMIC SECTION i.e. SWAP-OUT SECTION-->
+                    <div class="swap-out-section">
+                        <!--replace this thing's content-->
+                        <div id="initial-message" class="swap-out-item">
+                            <h3 id="initial-message-header">Lorem Ipsum</h3>
+                            <p id="initial-message-text">
+                                It is a long established fact that a reader will be distracted by the readable content
+                                of a page when looking at its layout. The point of using Lorem Ipsum is that it has a
+                                more-or-less normal distribution of letters, as opposed to using 'Content here, content
+                                here', making it look like readable English.
+                            </p>
+                        </div>
+                        <!--end swap item: initial message-->
+
+                        <!--contact info-->
+                        <div id="contact-container" class="swap-out-item">
+                            <h3 id="contact-message-header">Contact/Billing</h3>
+                            <div class="new-form-item top-item top-most-item">
+                                <label for="billingContact-firstName">First Name</label>
+                                <input type="text" name="billingContact-firstName" class="required-field"
+                                    id="billingContact-firstName" value="" placeholder="First Name" />
+                            </div>
+                            
+                            <div class="new-form-item top-item middle-item top-most-item">
+                                <label for="billingContact-lastName">Last Name</label>
+                                <input type="text" name="billingContact-lastName" class="required-field"
+                                    id="billingContact-lastName" value="" placeholder="Last Name" />
+                            </div>
+                            
+                            <div class="new-form-item top-item top-most-item">
+                                <label for="billingContact-email">Email</label>
+                                <input type="text" name="billingContact-email" class="required-field"
+                                    id="billingContact-email" value="norjon@aol.com" placeholder="Email" />
+                            </div>
+
+                            <div class="new-form-item top-item">
+                                <label for="billingAddress-address1">Street Address</label>
+                                <input type="text" name="billingAddress-address1" class="required-field"
+                                    id="billingAddress-address1" value="1 Fakery Way" placeholder="Address" />
+                            </div>
+
+                            <div class="new-form-item top-item middle-item">
+                                <label for="billingAddress-city">City</label>
+                                <input type="text" name="billingAddress-city" class="required-field"
+                                    id="billingAddress-city" value="Palo Alto" placeholder="City" />
+                            </div>
+
+                            <!--dropdown: state-->
+                            <div class="new-form-item top-item">
+                                <label for="billingAddress-state">State</label>
+                                <!-- <input type="text" name="billingAddress-state" id="billingAddress-state" value="CA"/> -->
+                                <!--use this for the international one-->
+                                <select id="billingAddress-state" name="billingAddress-state">
+                                    <!-- <option value="null">-Select a State-</option> -->
+                                    <option value="AL">Alabama</option>
+                                    <option value="AK">Alaska</option>
+                                    <option value="AZ">Arizona</option>
+                                    <option value="AR">Arkansas</option>
+                                    <option value="CA">California</option>
+                                    <option value="CO">Colorado</option>
+                                    <option value="CT">Connecticut</option>
+                                    <option value="DE">Delaware</option>
+                                    <option value="DC">District Of Columbia</option>
+                                    <option value="FL">Florida</option>
+                                    <option value="GA">Georgia</option>
+                                    <option value="HI">Hawaii</option>
+                                    <option value="ID">Idaho</option>
+                                    <option value="IL">Illinois</option>
+                                    <option value="IN">Indiana</option>
+                                    <option value="IA">Iowa</option>
+                                    <option value="KS">Kansas</option>
+                                    <option value="KY">Kentucky</option>
+                                    <option value="LA">Louisiana</option>
+                                    <option value="ME">Maine</option>
+                                    <option value="MD">Maryland</option>
+                                    <option value="MA">Massachusetts</option>
+                                    <option value="MI">Michigan</option>
+                                    <option value="MN">Minnesota</option>
+                                    <option value="MS">Mississippi</option>
+                                    <option value="MO">Missouri</option>
+                                    <option value="MT">Montana</option>
+                                    <option value="NE">Nebraska</option>
+                                    <option value="NV">Nevada</option>
+                                    <option value="NH">New Hampshire</option>
+                                    <option value="NJ">New Jersey</option>
+                                    <option value="NM">New Mexico</option>
+                                    <option value="NY">New York</option>
+                                    <option value="NC">North Carolina</option>
+                                    <option value="ND">North Dakota</option>
+                                    <option value="OH">Ohio</option>
+                                    <option value="OK">Oklahoma</option>
+                                    <option value="OR">Oregon</option>
+                                    <option value="PA">Pennsylvania</option>
+                                    <option value="RI">Rhode Island</option>
+                                    <option value="SC">South Carolina</option>
+                                    <option value="SD">South Dakota</option>
+                                    <option value="TN">Tennessee</option>
+                                    <option value="TX">Texas</option>
+                                    <option value="UT">Utah</option>
+                                    <option value="VT">Vermont</option>
+                                    <option value="VA">Virginia</option>
+                                    <option value="WA">Washington</option>
+                                    <option value="WV">West Virginia</option>
+                                    <option value="WI">Wisconsin</option>
+                                    <option value="WY">Wyoming</option>
+                                </select>
+                            </div>
+
+                            <div class="new-form-item">
+                                <label for="billingAddress-zip">ZIP</label>
+                                <input type="text" name="billingAddress-zip" class="required-field"
+                                    id="billingAddress-zip" value="90210" placeholder="ZIP Code" />
+                            </div>
+
+                            <div class="new-form-item middle-item">
+                                <label for="billingAddress-country">Country</label>
+                                <input type="text" name="billingAddress-country" class="required-field"
+                                    id="billingAddress-country" value="US" placeholder="Country" />
+                            </div>
+
+                            <div class="new-form-item">
+                                <label for="billingContact-primaryPhone">Primary Phone</label>
+                                <input type="text" name="billingContact-primaryPhone" class="required-field"
+                                    id="billingContact-primaryPhone" value="2145551212" placeholder="111-222-3333" />
+                            </div>
+                        </div>
+                        <!--end swap item: contact info-->
+
+                        <!--designation/tribute-->
+                        <div id="designation-tribute-container" class="swap-out-item">
+                            <!--DESIGNATION SECTION-->
+                            <h3 id="designation-message-header">Designation</h2>
+
+                                <div class="new-form-item top-item">
+                                    <label for="designations-id">Select a Designation</label>
+                                    <!-- <input type="text" name="cardData-expirationMonth" id="cardData-expirationMonth" value="01"/> -->
+                                    <select name="designations-id" id="designations-id">
+                                        <option value="null">(No designation)</option>
+                                        <option value="DESIGNATION">Melvin Jones</option>
+                                        <option value="designation_code">Jessica Alba</option>
+                                        <option value="0192321.001 ">Jean-Luc Picard</option>
+                                        <option value="192322.003">Spongebob Squarepants</option>
+                                    </select>
+                                </div>
+
+                                <div class="new-form-item">
+                                    <h3 id="tribute-message-header">Tribute</h2>
+                                        <div id="designation-container">
+                                            <label for="tribute-checkbox">Give your gift in honor of someone
+                                                special.</label>
+                                            <!-- <input type="text" name="cardData-expirationMonth" id="cardData-expirationMonth" value="01"/> -->
+                                            <input type="checkbox" id="tribute-checkbox">
+                                            <div id="tribute-form" class="tribute-hidden">
+                                                <!--* export type TributeData = {
+                                                        tributeDefinitionId: string;    //dropdown
+                                                        tributeFirstName: string;       //text input
+                                                        tributeLastName: string;        //text input
+                                                        tributeAddress1: string;        //text input
+                                                        tributeAddress2: string;        //text input
+                                                        tributeCity: string;            //text input
+                                                        tributeState: string;           //dropdown
+                                                        tributePostalCode: string;      //text input
+                                                        tributeCountry: string;         //text input
+                                                        tributeFromName: string;        //text input
+                                                        tributeRecipientEmail: string;  //text input
+                                                        honorees: { firstname: string; lastname: string; message: string }[];
+                                                        tributeSendCard: boolean;       //checkbox
+                                                        tributeIncludeAmount: boolean;  //checkbox
+                                                        tributeSkipped: boolean;        //checkbox
+                                                        useOnBillingAddress: boolean;   //checkbox
+                                                    }
+                                                *-->
+                                                <!--tributeDefinitionId-->
+                                                <div class="new-form-item">
+                                                    <label for="tribute-tributeDefinitionId">Tribute Type</label>
+                                                    <select id="tribute-tributeDefinitionId"
+                                                        name="tribute-tributeDefinitionId" class="tribute-item">
+                                                        <option value="In honor of">In honor of</option>
+                                                        <option value="In memory of">In memory of</option>
+                                                        <option value="In celebration of">In celebration of</option>
+                                                    </select>
+                                                </div>
+                                                <!--tributeFirstName-->
+                                                <div class="new-form-item">
+                                                    <label for="tribute-tributeFirstName">First Name of Honoree</label>
+                                                    <input id="tribute-tributeFirstName" name="tribute-tributeFirstName"
+                                                        placeholder="First Name" class="tribute-item">
+                                                </div>
+                                                <!--tributeLastName-->
+                                                <div class="new-form-item">
+                                                    <label for="tribute-tributeLastName">Last Name of Honoree</label>
+                                                    <input id="tribute-tributeLastName" name="tribute-tributeLastName"
+                                                        placeholder="Last Name" class="tribute-item">
+                                                </div>
+                                                <!--tributeAddress1-->
+                                                <div class="new-form-item">
+                                                    <label for="tribute-tributeAddress1">Honoree Address</label>
+                                                    <input id="tribute-tributeAddress1" name="tribute-tributeAddress1"
+                                                        placeholder="Honoree Address" class="tribute-item">
+                                                </div>
+                                                <!--tributeAddress2-->
+                                                <div class="new-form-item">
+                                                    <label for="tribute-tributeAddress2">Honoree Address (Line
+                                                        2)</label>
+                                                    <input id="tribute-tributeAddress2" name="tribute-tributeAddress2"
+                                                        placeholder="Honoree Address (Line 2)" class="tribute-item">
+                                                </div>
+                                                <!--tributeCity-->
+                                                <div class="new-form-item">
+                                                    <label for="tribute-tributeCity">Honoree City</label>
+                                                    <input id="tribute-tributeCity" name="tribute-tributeCity"
+                                                        placeholder="Honoree City" class="tribute-item">
+                                                </div>
+                                                <!--tributeState-->
+                                                <div class="new-form-item">
+                                                    <label for="tribute-tributeState">Honoree State</label>
+                                                    <select id="tribute-tributeState" name="tribute-tributeState">
+                                                        <!-- <option value="null">-Select a State-</option> -->
+                                                        <option value="AL">Alabama</option>
+                                                        <option value="AK">Alaska</option>
+                                                        <option value="AZ">Arizona</option>
+                                                        <option value="AR">Arkansas</option>
+                                                        <option value="CA">California</option>
+                                                        <option value="CO">Colorado</option>
+                                                        <option value="CT">Connecticut</option>
+                                                        <option value="DE">Delaware</option>
+                                                        <option value="DC">District Of Columbia</option>
+                                                        <option value="FL">Florida</option>
+                                                        <option value="GA">Georgia</option>
+                                                        <option value="HI">Hawaii</option>
+                                                        <option value="ID">Idaho</option>
+                                                        <option value="IL">Illinois</option>
+                                                        <option value="IN">Indiana</option>
+                                                        <option value="IA">Iowa</option>
+                                                        <option value="KS">Kansas</option>
+                                                        <option value="KY">Kentucky</option>
+                                                        <option value="LA">Louisiana</option>
+                                                        <option value="ME">Maine</option>
+                                                        <option value="MD">Maryland</option>
+                                                        <option value="MA">Massachusetts</option>
+                                                        <option value="MI">Michigan</option>
+                                                        <option value="MN">Minnesota</option>
+                                                        <option value="MS">Mississippi</option>
+                                                        <option value="MO">Missouri</option>
+                                                        <option value="MT">Montana</option>
+                                                        <option value="NE">Nebraska</option>
+                                                        <option value="NV">Nevada</option>
+                                                        <option value="NH">New Hampshire</option>
+                                                        <option value="NJ">New Jersey</option>
+                                                        <option value="NM">New Mexico</option>
+                                                        <option value="NY">New York</option>
+                                                        <option value="NC">North Carolina</option>
+                                                        <option value="ND">North Dakota</option>
+                                                        <option value="OH">Ohio</option>
+                                                        <option value="OK">Oklahoma</option>
+                                                        <option value="OR">Oregon</option>
+                                                        <option value="PA">Pennsylvania</option>
+                                                        <option value="RI">Rhode Island</option>
+                                                        <option value="SC">South Carolina</option>
+                                                        <option value="SD">South Dakota</option>
+                                                        <option value="TN">Tennessee</option>
+                                                        <option value="TX">Texas</option>
+                                                        <option value="UT">Utah</option>
+                                                        <option value="VT">Vermont</option>
+                                                        <option value="VA">Virginia</option>
+                                                        <option value="WA">Washington</option>
+                                                        <option value="WV">West Virginia</option>
+                                                        <option value="WI">Wisconsin</option>
+                                                        <option value="WY">Wyoming</option>
+                                                    </select>
+                                                </div>
+                                                <!--tributePostalCode-->
+                                                <div class="new-form-item">
+                                                    <label for="tribute-tributePostalCode">Honoree ZIP</label>
+                                                    <input id="tribute-tributePostalCode"
+                                                        name="tribute-tributePostalCode" placeholder="Honoree ZIP"
+                                                        class="tributeItem">
+                                                </div>
+                                                <!--tributeCountry-->
+                                                <div class="new-form-item">
+                                                    <label for="tribute-tributeCountry">Honoree Country</label>
+                                                    <input id="tribute-tributeCountry" name="tribute-tributeCountry"
+                                                        placeholder="Honoree Country" class="tributeItem">
+                                                </div>
+                                                <!--tributeFromName-->
+                                                <div class="new-form-item">
+                                                    <label for="tribute-tributeFromName">From</label>
+                                                    <input id="tribute-tributeFromName" name="tribute-tributeFromName"
+                                                        placeholder="From" class="tributeItem">
+                                                </div>
+                                                <!--tributeRecipientEmail-->
+                                                <div class="new-form-item">
+                                                    <label for="tribute-tributeRecipientEmail">Honoree Email</label>
+                                                    <input id="tribute-tributeRecipientEmail"
+                                                        name="tribute-tributeRecipientEmail" placeholder="Honoree Email"
+                                                        class="tributeItem">
+                                                </div>
+                                                <!--honorees-->
+                                                <!--todo: freakin' object arrays.-->
+                                                <!--tributeSendCard-->
+                                                <div class="new-form-item">
+                                                    <label for="tribute-tributeSendCard">Send a Card?</label>
+                                                    <div class="tribute-checkbox-container">
+                                                        <input type="checkbox" id="tribute-tributeSendCard"
+                                                            name="tribute-tributeSendCard"
+                                                            class="tribute-item-checkbox">
+                                                    </div>
+                                                </div>
+                                                <!--tributeIncludeAmount-->
+                                                <div class="new-form-item">
+                                                    <label for="tribute-tributeIncludeAmount">Include Gift
+                                                        Amount?</label>
+                                                    <div class="tribute-checkbox-container">
+                                                        <input type="checkbox" id="tribute-tributeIncludeAmount"
+                                                            name="tribute-tributeIncludeAmount"
+                                                            class="tribute-item-checkbox">
+                                                    </div>
+                                                </div>
+                                                <!--tributeSkipped-->
+                                                <!--todo: figure out what this is-->
+                                                <!--useOnBillingAddress-->
+                                                <!--todo: see above-->
+                                            </div>
+                                        </div>
+                                </div>
+
+                                <div class="new-form-item">
+                                    <h3 class="dpf-message-header">Cover Transaction Fees</h2>
+                                        <div id="dpf-section">
+                                            <label id="dpf-message">Yes, I would like to cover the transaction fee of
+                                                <span id="dpf-amount"></span>.</label>
+                                            <input type="checkbox" id="dpf-checkbox">
+
+                                        </div>
+                                </div>
+                                <!--end dpf-->
+                        </div>
+                        <!--end swap item: designation/tribute-->
+
+                        <!--TODO: Gift Options-->
+                        <div class="swap-out-item" id="thank-you-gift-section">
+                            <h3 id="gift-section-header" class="top-item">Thank You Gift</h3>
+                            
+                            <div class="new-form-item gift top-item" id="gift-level-1">
+                                <label for="gift1" class="gift-label"><strong>Bronze Level</strong></label>
+                                <input type="radio" name="gift-option" value="bd1e6066-8756-40aa-b8f7-8b854417dab2" class="gift-option-class" id="gl1">
+                                <p class="gift-desc"><strong>A $20 gift</strong> will make you the proud owner of a triangular Rubik's cube!  Hours of fun, or, a stylish paperweight.</p>
+                            </div><!--Lv. 1 Radial-->
+                            <div class="new-form-item gift-image top-item" id="gi1">
+                                <img src="gift1.jpg" class="new-gift-image">
+                            </div><!--Lv. 1 Image-->
+
+                            <div class="new-form-item gift top-item" id="gift-level-2">
+                                <label for="gift2" class="gift-label"><strong>Silver Level</strong></label>
+                                <input type="radio" name="gift-option" value="8fcfb52e-a69d-475c-a10b-2cde646f6e17" class="gift-option-class" id="gl2">
+                                <p class="gift-desc"><strong>A $100 gift</strong> will have a cubic Rubik's cube show up at your door!  Become the envy of the competitive Rubik's Cube scene with this paragon of plastic puzzles.</p>
+                            </div><!--Lv. 2 Radial-->
+                            <div class="new-form-item gift-image top-item" id="gi2">
+                                <img src="gift2.jpg" class="new-gift-image">
+                            </div><!--Lv. 2 Image-->
+
+                            <div class="new-form-item gift top-item" id="gift-level-3">
+                                <label for="gift3" class="gift-label"><strong>Gold Level</strong></label>
+                                <input type="radio" name="gift-option" value="e3874115-98ce-4a0c-b188-b638a0d2aec5" class="gift-option-class" id="gl3">
+                                <p class="gift-desc"><strong>A $200 gift</strong> will make you the undisputed emperor of the world vis a vis the Dodeca-Cube.  Straight from the deepest of Egyptian tombs, directly to your door.</p>
+                            </div><!--Lv. 3 Radial-->
+                            <div class="new-form-item gift-image top-item" id="gi3">
+                                <img src="gift3.jpg" class="new-gift-image">
+                            </div><!--Lv. 3 Image-->
+
+                            <div class="new-form-item giftOptIn">
+                                <label for="gift-opt-out">No thanks, I'm running out of space at my place.</label>
+                                <input type="checkbox" id="gift-opt-out">
+                            </div><!--Opt Out Checkbox Prompt-->
+                        </div>
+                        
+                        <!--card-->
+                        <div class="swap-out-item" id="card-section">
+                            <h3 id="card-message-header">Card Information</h2>
+                                <div id="new-payment">
+                                    <div class="new-form-item top-item">
+                                        <label for="cardData-cardNumber">Card No.</label>
+                                        <input type="text" name="cardData-cardNumber" class="required-field"
+                                            id="cardData-cardNumber" value="5555555555554444" placeholder="Card No." />
+                                    </div>
+                                    <div class="new-form-item top-item">
+                                        <label for="cardData-expirationMonth">Expiration Month</label>
+                                        <!-- <input type="text" name="cardData-expirationMonth" id="cardData-expirationMonth" value="01"/> -->
+                                        <select name="cardData-expirationMonth" id="cardData-expirationMonth">
+                                            <!-- <option val="null">-Month-</option> -->
+                                            <option value="01">01 - January</option>
+                                            <option value="02">02 - February</option>
+                                            <option value="03">03 - March</option>
+                                            <option value="04">04 - April</option>
+                                            <option value="05">05 - May</option>
+                                            <option value="06">06 - June</option>
+                                            <option value="07">07 - July</option>
+                                            <option value="08">08 - August</option>
+                                            <option value="09">09 - September</option>
+                                            <option value="10">10 - October</option>
+                                            <option value="11">11 - November</option>
+                                            <option value="12">12 - December</option>
+                                        </select>
+                                    </div>
+                                    <div class="new-form-item">
+                                        <label for="cardData-expirationYear">Expiration Year</label>
+                                        <!-- <input type="text" name="cardData-expirationYear" id="cardData-expirationYear" value="2023"/> -->
+                                        <select name="cardData-expirationYear" id="cardData-ExpirationYear">
+                                            <!-- <option val="null">-Exp. Year-</option> -->
+                                            <!-- <option val="2021">2021</option> -->
+                                            <option val="2022">2022</option>
+                                            <option val="2023">2023</option>
+                                            <option val="2024">2024</option>
+                                            <option val="2025">2025</option>
+                                            <option val="2026">2026</option>
+                                            <option val="2027">2027</option>
+                                            <option val="2028">2028</option>
+                                            <option val="2029">2029</option>
+                                            <option val="2030">2030</option>
+                                            <option val="2031">2031</option>
+                                        </select>
+                                    </div>
+                                </div>
+                        </div>
+                        <!--end swap item: card section-->
+
+                        <!--confirmation-->
+                        <div class="swap-out-item" id="confirmation-section">
+                            <div class="amount-confirmation-container">
+                                <p id="amount-confirmation">By clicking below, you will give a <strong><span
+                                            id="confirmation-monthly-or-no"></span></strong> gift of <strong><span
+                                            id="amount-confirmation-text"></span></strong> to our cause.</p>
+                            </div>
+
+                            <div class="donation-button-container">
+                                <button type="submit" id="the-button" class="donation-button-inactive">Give to the Cause
+                                    &nbsp;<i class="fa fa-lock" aria-hidden="true"></i></button>
+                            </div>
+                            <div class="error-text"></div>
+                            <div class="donation-button-security-reassurance">
+                                Form secured by <a href="https://www.google.com/recaptcha/about/"
+                                    target="_self">ReCaptcha</a>. <br>All data entered here is transmitted securely
+                                between your computer and the iDonate server.
+                            </div>
+                            <!--END CONFIRMATION SECTION-->
+                        </div>
+                        <!--end swap item: confirmation-->
+
+                    </div>
+                    <!--end swap section-->
+                    <div id="next-prev">
+                        <!--buttons for previous and next-->
+                        <button type="button" id="prev" class="next-prev-button">Previous</button>
+                        <button type="button" id="next" class="next-prev-button">Next</button>
+                    </div>
+                </div>
+
+            </div>
+            <!--end form section: initial payment info-->
+        </form>
+
+    </div>
+    <!--end modular div-->
+
+    <!--receipt page-->
+    <div class="receipt-container">
+        <div id="receipt-header">
+            <h2>Thank you for your <span id="receipt-recurring-span"></span> gift to our organization.</h2>
+        </div>
+        <div id="receipt-thank-you-message">
+            <p>Your gift will make a real difference in the world.</p>
+        </div>
+
+        <div id="receipt-detail-header">
+            <h3>Transaction Details</h3>
+        </div>
+        <div id="receipt-name" class="receipt-item">
+            <p><strong>Donor: </strong><span id="receipt-name-text"></span></p>
+        </div>
+        <div id="receipt-date" class="receipt-item">
+            <p><strong>Date of Gift: </strong><span id="receipt-date-text"></span></p>
+        </div>
+        <div id="receipt-gift-amount" class="receipt-item">
+            <p><strong>Gift Amount: </strong><span id="receipt-gift-text"></span></p>
+        </div>
+        <div id="receipt-recurring-frequency" class="receipt-item">
+            <p><strong>Gift Frequency: </strong><span id="receipt-frequency-text"></span></p>
+        </div>
+        <!-- <div id="receipt-transaction-id" class="receipt-item">
+                <p><strong>Transaction ID: </strong><span id="receipt-transactionID-text"></span></p>
+            </div> -->
+        <div id="receipt-truncated-card" class="receipt-item">
+            <p><strong>Card Used: </strong><span id="receipt-card-text"></span></p>
+        </div>
+
+        <div id="receipt-organization-image">
+            <img src="img/chf.png" class="receipt-image">
+            <!--Organization image url goes here.-->
+        </div>
+    </div>
+
+    <!--recurring prompt-->
+    <div class="recurring-prompt-container recurring-prompt-hidden" id="recurring-prompt">
+        <div class="container">
+            <div class="row recurring-prompt-message">
+                <h2>Become a sustaining member.</h2>
+                <p>Those with more to give, can give more. Become a sustaining member, and your contributions will
+                    continue to improve lives around the world.</p>
+            </div>
+            <div class="row">
+                <div class="recurring-button-container">
+                    <button type="button" class="recurring-prompt-button" id="recurring-prompt-yes">Become a monthly
+                        member</button>
+                    <button type="button" class="recurring-prompt-button" id="recurring-prompt-no">Give once</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
