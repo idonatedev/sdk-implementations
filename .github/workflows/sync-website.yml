@@ -3,7 +3,7 @@ name: Sync Website
 on:
   push:
     branches:
-      - test
+      - master
 
 jobs:
   deploy:
