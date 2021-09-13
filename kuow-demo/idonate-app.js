@@ -78,7 +78,7 @@ var idonateApp = new Vue({
 			grecaptcha.execute();
 			console.log("Post recaptcha");
 		},
-		handleDonation() {
+		handleDonation(recaptchaToken) {
 			console.log("Handling donation in recaptcha callback", this);
 			let billingContact = {
 				salutation: null,
