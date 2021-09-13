@@ -82,8 +82,8 @@ var idonateApp = new Vue({
 			console.log("Handling donation in recaptcha callback");
 			let billingContact = {
 				salutation: null,
-				firstName: this.firstName,
-				lastName: this.lastName,
+				firstName: this.donor.firstName,
+				lastName: this.donor.lastName,
 				company: null,
 				email: this.donorEmail,
 				primaryPhone: this.donorPhone
