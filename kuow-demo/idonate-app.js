@@ -183,7 +183,7 @@ var idonateApp = new Vue({
 		var renderRecaptcha = function() {
 			grecaptcha.render('recaptcha-wrapper', {
 				"class": "g-recaptcha",
-				"sitekey": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
+				"sitekey": "6LensWUcAAAAAC07JVxQLUjBD6VKniiQqbp5oBWV",
 				"callback": this.handleDonation,
 				"size": "invisible"
 			});
