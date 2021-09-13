@@ -169,13 +169,15 @@ var idonateApp = new Vue({
 	},
 	mounted() {
 		console.log("mounted", grecaptcha);
-		setTimeout(function() {
+		var renderRecaptcha = function() {
 			grecaptcha.render('recaptcha-wrapper', {
 				"class": "g-recaptcha",
 				"sitekey": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
 				"callback": this.handleDonation,
 				"size": "invisible"
 			});
-		}, 500);
+		};
+
+		setTimeout(renderRecaptcha.bind(this), 500);
 	}
 });
