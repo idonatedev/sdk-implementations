@@ -264,74 +264,35 @@
                                             <label class="expanding_input" for="expanding_trigger-shipping_address">Address*</label>
                                             <div class="fieldset">
                                                 <span class="float-input">
-                                                    <input type="text" id="shipping_street" name="shipping_street" autocomplete="shipping street-address" v-model="shipping.street" :class="{ 'has_value': shipping.street }">
-                                                    <label for="shipping_street">Street*</label>
+                                                    <input type="text" id="mailing_street" name="mailing_street" tabindex="-1" autocomplete="billing street-address" v-model="billing.street" :class="{ 'has_value': billing.street }">
+                                                    <label for="mailing_street">Street</label>
                                                     <span class="msg">Include apartment number or other secondary information.</span>
                                                 </span>
-                                                <span class="float-input invalid">
-                                                    <select id="shipping_country" name="shipping_country" autocomplete="shipping country" v-model="shipping.country" :class="{ 'has_value': shipping.country }">
+                                                <span class="static-input">
+                                                    <select id="mailing_country" name="mailing_country" tabindex="-1" autocomplete="billing country" v-model="billing.country" :class="{ 'has_value': billing.country }">
                                                         <option value=""></option>
                                                         <option value="us">United States</option>
                                                         <option value="ca">Canada</option>
                                                     </select>
-                                                    <label for="shipping_country">Country*</label>
+                                                    <label for="mailing_country">Country</label>
                                                 </span>
                                                 <span class="inline-inputs">
                                                     <span class="float-input">
-                                                        <input type="text" id="shipping_city" name="shipping_city" autocomplete="shipping address-level2" v-model="shipping.city" :class="{ 'has_value': shipping.city }">
-                                                        <label for="shipping_city">City*</label>
+                                                        <input type="text" id="mailing_city" name="mailing_city" tabindex="-1" autocomplete="billing address-level2" v-model="billing.city" :class="{ 'has_value': billing.city }">
+                                                        <label for="mailing_city">City</label>
                                                     </span>
-                                                    <span class="float-input invalid">
-                                                        <select id="shipping_state" name="shipping_state" autocomplete="shipping address-level1" v-model="shipping.state" :class="{ 'has_value': shipping.state }">
+                                                    <span class="float-input">
+                                                        <select id="mailing_state" name="mailing_state" tabindex="-1" autocomplete="billing address-level1" v-model="billing.state" :class="{ 'has_value': billing.state }">
                                                             <option value=""></option>
                                                             <option v-for="state in stateArray" :value="state">{{ state }}</option>
                                                         </select>
-                                                        <label for="shipping_state">State*</label>
+                                                        <label for="mailing_state">State*</label>
                                                     </span>
                                                     <span class="float-input">
-                                                        <input type="text" id="shipping_postal_code" name="shipping_postal_code" autocomplete="shipping postal-code" v-model="shipping.zip" :class="{ 'has_value': shipping.zip }">
-                                                        <label for="shipping_postal_code">Zip Code*</label>
+                                                        <input type="text" id="mailing_postal_code" name="mailing_postal_code" tabindex="-1" autocomplete="billing postal-code" v-model="billing.zip" :class="{ 'has_value': billing.zip }">
+                                                        <label for="mailing_postal_code">Postal Code*</label>
                                                     </span>
                                                 </span>
-                                                <div class="expanding_fieldset">
-                                                    <input type="checkbox" name="expanding_trigger-mailing_address" id="expanding_trigger-mailing_address" class="expanding_checkbox expanding_trigger-reverse" disabled="">
-                                                    <label class="expanding_label" for="expanding_trigger-mailing_address">This will be used as shipping address if you choose a gift</label>
-                                                    <div class="fieldset">
-                                                        <h3>Mailing Address</h3>
-                                                        <div class="fieldset">
-                                                            <span class="float-input">
-                                                                <input type="text" id="mailing_street" name="mailing_street" tabindex="-1" autocomplete="billing street-address" v-model="billing.street" :class="{ 'has_value': billing.street }">
-                                                                <label for="mailing_street">Street</label>
-                                                                <span class="msg">Include apartment number or other secondary information.</span>
-                                                            </span>
-                                                            <span class="static-input">
-                                                                <select id="mailing_country" name="mailing_country" tabindex="-1" autocomplete="billing country" v-model="billing.country" :class="{ 'has_value': billing.country }">
-                                                                    <option value=""></option>
-                                                                    <option value="us">United States</option>
-                                                                    <option value="ca">Canada</option>
-                                                                </select>
-                                                                <label for="mailing_country">Country</label>
-                                                            </span>
-                                                            <span class="inline-inputs">
-                                                                <span class="float-input">
-                                                                    <input type="text" id="mailing_city" name="mailing_city" tabindex="-1" autocomplete="billing address-level2" v-model="billing.city" :class="{ 'has_value': billing.city }">
-                                                                    <label for="mailing_city">City</label>
-                                                                </span>
-                                                                <span class="float-input">
-                                                                    <select id="mailing_state" name="mailing_state" tabindex="-1" autocomplete="billing address-level1" v-model="billing.state" :class="{ 'has_value': billing.state }">
-                                                                        <option value=""></option>
-                                                                        <option v-for="state in stateArray" :value="state">{{ state }}</option>
-                                                                    </select>
-                                                                    <label for="mailing_state">State*</label>
-                                                                </span>
-                                                                <span class="float-input">
-                                                                    <input type="text" id="mailing_postal_code" name="mailing_postal_code" tabindex="-1" autocomplete="billing postal-code" v-model="billing.zip" :class="{ 'has_value': billing.zip }">
-                                                                    <label for="mailing_postal_code">Postal Code*</label>
-                                                                </span>
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
                                                 <span class="float-input">
                                                     <input type="text" id="phone_number" name="phone_number" autocomplete="shipping phone-number" v-model="donorPhone" :class="{ 'has_value': donorPhone }">
                                                     <label for="phone_number">Phone Number</label>

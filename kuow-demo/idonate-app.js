@@ -74,12 +74,12 @@ var idonateApp = new Vue({
 			this.showingModal = false;
 		},
 		executeRecaptcha() {
-			console.log("Executing recaptcha", grecaptcha);
+			console.log("Executing recaptcha", grecaptcha, this);
 			grecaptcha.execute();
 			console.log("Post recaptcha");
 		},
 		handleDonation() {
-			console.log("Handling donation in recaptcha callback");
+			console.log("Handling donation in recaptcha callback", this);
 			let billingContact = {
 				salutation: null,
 				firstName: this.donor.firstName,
