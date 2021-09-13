@@ -3,6 +3,7 @@ name: Sync Website
 on:
   push:
     branches:
+      - main
       - master
 
 jobs:
