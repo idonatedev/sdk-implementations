@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>KUOW - KUOW Main Web</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover">
+    <meta name="turbolinks-cache-control" content="no-cache">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://kuow.org/donate" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://kuow-prod.imgix.net/store/10e44e066e16acaa2e560a116d193fb5.png?fm=jpg&fit=max&w=1200&h=628&q=80" />
+    
+    <link rel="stylesheet" media="all" href="kuow.css" />
+    <link rel="stylesheet" media="screen" href="kuow-packs.css" />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <!-- idonate required libs -->
+    <script src="https://www.google.com/recaptcha/api.js?render=explicit"></script>
+    <script src="https://unpkg.com/@idonatedev/idonate-sdk@1.0.0"></script>
+</head>
+
+<body class="donate_kuow-main-web">
+  <div id="global-announcement">
+      <!-- replaced by react -->
+  </div>
+  <header id="site-header">
+      <!-- replaced by react -->
+  </header>
+  <div class="idonateApp" id="idonateApp">
+    <div id='recaptcha-wrapper'></div>
+    <main id="pg-main" class="donate_kuow-main-web" tabIndex="-1">
+        <div class="clip">
+            <div class="pg-main open">
+                <div class="pg-hero">
+                    <div class="donation-hero">
+                        <div class="hero-image">
+                            <img sizes="(min-width: 87.5rem) 87.5rem, (min-width: 46.875rem) 100vw, (max-width: 46.874rem) 140vw" alt="Test Image" srcset="https://kuow-prod.imgix.net/store/23aa3f8df0cb6c1ae889b50b3b4650c8.png?ixlib=rails-2.1.4&amp;auto=format&amp;crop=faces&amp;fit=crop&amp;h=137&amp;w=320 320w, https://kuow-prod.imgix.net/store/23aa3f8df0cb6c1ae889b50b3b4650c8.png?ixlib=rails-2.1.4&amp;auto=format&amp;crop=faces&amp;fit=crop&amp;h=161&amp;w=375 375w, https://kuow-prod.imgix.net/store/23aa3f8df0cb6c1ae889b50b3b4650c8.png?ixlib=rails-2.1.4&amp;auto=format&amp;crop=faces&amp;fit=crop&amp;h=193&amp;w=450 450w, https://kuow-prod.imgix.net/store/23aa3f8df0cb6c1ae889b50b3b4650c8.png?ixlib=rails-2.1.4&amp;auto=format&amp;crop=faces&amp;fit=crop&amp;h=326&amp;w=760 760w, https://kuow-prod.imgix.net/store/23aa3f8df0cb6c1ae889b50b3b4650c8.png?ixlib=rails-2.1.4&amp;auto=format&amp;crop=faces&amp;fit=crop&amp;h=343&amp;w=800 800w, https://kuow-prod.imgix.net/store/23aa3f8df0cb6c1ae889b50b3b4650c8.png?ixlib=rails-2.1.4&amp;auto=format&amp;crop=faces&amp;fit=crop&amp;h=386&amp;w=900 900w, https://kuow-prod.imgix.net/store/23aa3f8df0cb6c1ae889b50b3b4650c8.png?ixlib=rails-2.1.4&amp;auto=format&amp;crop=faces&amp;fit=crop&amp;h=482&amp;w=1125 1125w, https://kuow-prod.imgix.net/store/23aa3f8df0cb6c1ae889b50b3b4650c8.png?ixlib=rails-2.1.4&amp;auto=format&amp;crop=faces&amp;fit=crop&amp;h=532&amp;w=1242 1242w, https://kuow-prod.imgix.net/store/23aa3f8df0cb6c1ae889b50b3b4650c8.png?ixlib=rails-2.1.4&amp;auto=format&amp;crop=faces&amp;fit=crop&amp;h=600&amp;w=1400 1400w, https://kuow-prod.imgix.net/store/23aa3f8df0cb6c1ae889b50b3b4650c8.png?ixlib=rails-2.1.4&amp;auto=format&amp;crop=faces&amp;fit=crop&amp;h=1234&amp;w=2880 2880w" src="https://kuow-prod.imgix.net/store/23aa3f8df0cb6c1ae889b50b3b4650c8.png?ixlib=rails-2.1.4&auto=format&crop=faces&fit=crop&h=600&w=1400" />
+                        </div>
+                        <div class="hero-intro">
+                            <div class="intro">
+                                <h1>SUPPORT KUOW AND NPR</h1>
+                                <p>Our award-winning coverage is only possible with your support. We’re looking to our Puget Sound community to show its support for the public radio you count on day in and day out. </p>
+                                <p>Need our address, to get in touch with our membership team or looking for other ways to support KUOW? <a href="/support">Ways to contact KUOW</a>.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pg-main-narrow pg_content">
+                    <div class="narrow-wrapper">
+                        <div>
+                            <form @submit.prevent="executeRecaptcha">
+                                <div class="donation-choose_donation">
+                                    <fieldset class="choose_type">
+                                        <ul>
+                                            <li class="one_time">
+                                                <input type="radio" name="method" id="one_time" value="one_time" v-model="donationFrequency">
+                                                <label for="one_time">
+                                                    <span><i>I want to make a</i><b>One-Time Donation</b></span>
+                                                </label>
+                                            </li>
+                                            <li class="monthly">
+                                                <input type="radio" name="method" id="monthly" value="monthly" v-model="donationFrequency">
+                                                <label for="monthly">
+                                                    <span><i>I want to make a</i><b>Monthly Donation</b></span>
+                                                </label>
+                                            </li>
+                                        </ul>
+                                    </fieldset>
+                                    <fieldset class="choose_amount">
+                                        <ul class="choices" v-if="donationFrequency === 'one_time'">
+                                            <li>
+                                                <input tabindex="-1" type="radio" name="tier" id="tier_1" value="50" v-model="donationAmount">
+                                                <label for="tier_1">$50</label>
+                                            </li>
+                                            <li>
+                                                <span class="callout">popular</span>
+                                                <input tabindex="-1" type="radio" name="tier" id="tier_2" value="125" v-model="donationAmount">
+                                                <label for="tier_2">$125</label>
+                                            </li>
+                                            <li>
+                                                <input tabindex="-1" type="radio" name="tier" id="tier_3" value="250" v-model="donationAmount">
+                                                <label for="tier_3">$250</label>
+                                            </li>
+                                            <li>
+                                                <input tabindex="-1" type="radio" name="tier" id="tier_4" value="500" v-model="donationAmount">
+                                                <label for="tier_4">$500</label>
+                                            </li>
+                                        </ul>
+                                        <ul class="choices" v-if="donationFrequency === 'monthly'">
+                                            <li>
+                                                <input tabindex="-1" type="radio" name="tier" id="tier_1" value="8" v-model="donationAmount">
+                                                <label for="tier_1">$8 <i>Monthly</i></label>
+                                            </li>
+                                            <li>
+                                                <span class="callout">popular</span>
+                                                <input tabindex="-1" type="radio" name="tier" id="tier_2" value="12" v-model="donationAmount">
+                                                <label for="tier_2">$12 <i>Monthly</i></label>
+                                            </li>
+                                            <li>
+                                                <input tabindex="-1" type="radio" name="tier" id="tier_3" value="15" v-model="donationAmount">
+                                                <label for="tier_3">$15 <i>Monthly</i></label>
+                                            </li>
+                                            <li>
+                                                <input tabindex="-1" type="radio" name="tier" id="tier_4" value="20" v-model="donationAmount">
+                                                <label for="tier_4">$20 <i>Monthly</i></label>
+                                            </li>
+                                        </ul>
+                                        <label class="current_amount" for="amount">
+                                            <span class="headline"><b>My Donation</b></span>
+                                            <span class="amount_input">
+                                                <span class="currency">$</span>
+                                                <input type="number" name="amount" id="amount" pattern="^\d+(?:\.\d{1,2})?$" v-model="donationAmount" style="width: 1.5em;">
+                                                <span v-if="donationFrequency === 'monthly'" class="monthly">Monthly</span>
+                                            </span>
+                                        </label>
+                                    </fieldset>
+                                </div>
+                                <section class="donation-checkout fancy_form">
+                                    <div class="fieldset">
+                                        <legend>Donor Information</legend>
+                                        <div>
+                                            <span class="float-input">
+                                                <input type="email" id="email_address" name="email_address" autocomplete="email" value="" v-model="donorEmail">
+                                                <label for="email_address">Email Address*</label>
+                                            </span>
+                                            <p>Already have an account? <a href="#">Sign In</a> to autofill this form.</p>
+                                            <div class="expanding_fieldset">
+                                                <input type="checkbox" tabindex="-1" name="expanding_trigger-donor_info" id="expanding_trigger-donor_info" class="expanding_trigger">
+                                                <label class="expanding_input" for="expanding_trigger-donor_info">Name*</label>
+                                                <div class="fieldset">
+                                                    <span class="inline-inputs combined">
+                                                        <span class="float-input">
+                                                            <input type="text" id="first_name" name="first_name" autocomplete="given-name" v-model="donor.firstName" :class="{ 'has_value': donor.firstName }">
+                                                            <label for="first_name">First*</label>
+                                                        </span>
+                                                        <span class="float-input">
+                                                            <input type="text" id="last_name" name="last_name" autocomplete="family-name" v-model="donor.lastName" :class="{ 'has_value': donor.lastName }">
+                                                            <label for="last_name">Last*</label>
+                                                        </span>
+                                                    </span>
+                                                    <label class="group_label" for="partner_first_name">Your Partner's Name</label>
+                                                    <span class="inline-inputs combined">
+                                                        <span class="float-input">
+                                                            <input type="text" id="partner_first_name" name="partner_first_name" autocomplete="off" v-model="partner.firstName" :class="{ 'has_value': partner.firstName }">
+                                                            <label for="partner_first_name">Partner First</label>
+                                                        </span>
+                                                        <span class="float-input">
+                                                            <input type="text" id="partner_last_name" name="partner_last_name" autocomplete="off" v-model="partner.lastName" :class="{ 'has_value': partner.lastName }">
+                                                            <label for="partner_last_name">Partner Last</label>
+                                                        </span>
+                                                    </span>
+                                                    <div class="expanding_fieldset">
+                                                        <label class="group_label_weak" for="dedicated_to">Tell us why you support KUOW in the comment box below. Your comments may be used on-air or in other KUOW materials. If you'd like to hear back from KUOW, please email membership@kuow.org or call 206.221.2501</label>
+                                                        <span class="float-input">
+                                                            <textarea type="text" id="dedicated_to" name="dedicated_to" rows="3" tabindex="0" autocomplete="off" v-model="dedicatedTo" :class="{ 'has_value': dedicatedTo }"></textarea>
+                                                            <label for="dedicated_to">Comment (255 character limit)</label>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> <!-- End of donor info fieldset -->
+                                    <div class="payment_methods fieldset">
+                                        <legend>Payment Method</legend>
+                                        <div class="tabs">
+                                            <input type="radio" name="payment_methods" id="payment_methods_credit_card" class="payment-cc" value="credit_card" v-model="payment.type">
+                                            <label class="icon-cc" for="payment_methods_credit_card">Credit Card</label>
+                                            <div class="tab-cc">
+                                                <div class="cc_form">
+                                                    <span class="cc-logo "></span>
+                                                    <div class="inputs">
+                                                        <span class="float-input">
+                                                            <input type="text" id="card_number" name="card_number" tabindex="-1" autocomplete="cc-number" v-model="payment.ccNumber" :class="{ 'has_value': payment.ccNumber }">
+                                                            <label for="card_number">Card Number*</label>
+                                                        </span>
+                                                        <span class="inline-inputs exp-cvv-container">
+                                                            <span class="inline-inputs combined">
+                                                                <span class="float-input">
+                                                                    <input type="text" id="exp_month" name="exp_month" tabindex="-1" autocomplete="cc-exp-month" v-model="payment.expMonth" :class="{ 'has_value': payment.expMonth }">
+                                                                    <label for="exp_month">Month*</label>
+                                                                </span>
+                                                                <span class="float-input">
+                                                                    <input type="text" id="exp_year" name="exp_year" tabindex="-1" autocomplete="cc-exp-year" v-model="payment.expYear" :class="{ 'has_value': payment.expYear }">
+                                                                    <label for="exp_year">Year*</label>
+                                                                </span>
+                                                            </span>
+                                                            <span class="float-input cvv-field-wrapper">
+                                                                <input type="text" id="cvv" name="cvv" tabindex="-1" autocomplete="cc-csc" v-model="payment.cvv" :class="{ 'has_value': payment.cvv }">
+                                                                <label for="cvv">CVV*</label>
+                                                            </span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <span class="float-input">
+                                                    <input type="text" id="postal_code" name="postal_code" tabindex="-1" maxlength="16" autocomplete="billing postal-code" v-model="payment.zip" :class="{ 'has_value': payment.zip }">
+                                                    <label for="postal_code">Billing Postal Code*</label>
+                                                </span>
+                                            </div>
+                                            <input type="radio" name="payment_methods" id="payment_methods_bank_account" class="payment-bank" value="bank_account" v-model="payment.type">
+                                            <label class="icon-bank" for="payment_methods_bank_account">Bank Account</label>
+                                            <div class="tab-bank">
+                                                <span class="inline-inputs">
+                                                    <span class="float-input">
+                                                        <input type="text" id="bank_first_name" name="bank_first_name" tabindex="-1" autocomplete="given-name" v-model="payment.firstName" :disabled="reuseName" :class="{ 'has_value': payment.firstName }">
+                                                        <label for="bank_first_name">First*</label>
+                                                    </span>
+                                                    <span class="float-input">
+                                                        <input type="text" id="bank_last_name" name="bank_last_name" tabindex="-1" autocomplete="family-name" v-model="payment.lastName" :disabled="reuseName" :class="{ 'has_value': payment.lastName }">
+                                                        <label for="bank_last_name">Last*</label>
+                                                    </span>
+                                                </span>
+                                                <span class="checkbox-set">
+                                                    <span class="checkbox-input">
+                                                        <input type="checkbox" name="reuseName" id="reuseName" tabindex="-1" v-model="reuseName">
+                                                        <label for="reuseName">Same as the name above</label>
+                                                    </span>
+                                                </span>
+                                                <span class="radio-set bank_account_types">
+                                                    <span class="radio-input">
+                                                        <input type="radio" name="bank_account_type" id="bank_account_type_checking" tabindex="-1" value="checking" v-model="payment.bankAccountType">
+                                                        <label class="checking" for="bank_account_type_checking">Checking</label>
+                                                    </span>
+                                                    <span class="radio-input">
+                                                        <input type="radio" name="bank_account_type" id="bank_account_type_savings" tabindex="-1" value="savings" v-model="payment.bankAccountType">
+                                                        <label class="savings" for="bank_account_type_savings">Savings</label>
+                                                    </span>
+                                                    <span class="radio-input">
+                                                        <input type="radio" name="bank_account_type" id="bank_account_type_business" tabindex="-1" value="business" v-model="payment.bankAccountType">
+                                                        <label class="business" for="bank_account_type_business">Business Checking</label>
+                                                    </span>
+                                                </span>
+                                                <div class="cute_check_form">
+                                                    <span class="static-input">
+                                                        <input type="text" id="bank_name" name="bank_name" class="" tabindex="-1" placeholder="Your Bank" value="">
+                                                        <label for="bank_name">Bank Name*</label>
+                                                    </span>
+                                                    <span class="inline-inputs">
+                                                        <span class="static-input">
+                                                            <input type="text" id="routing_number" name="routing_number" class="" tabindex="-1" placeholder="123456789" value="">
+                                                            <label for="routing_number">Routing Number*</label>
+                                                        </span>
+                                                        <span class="static-input">
+                                                            <input type="text" id="account_number" name="account_number" class="" tabindex="-1" placeholder="1234567890001" value="">
+                                                            <label for="account_number">Account Number*</label>
+                                                        </span>
+                                                    </span>
+                                                    <div class="check"></div>
+                                                </div>
+                                            </div>
+                                            <input type="radio" name="payment_methods" id="payment_methods_paypal" class="payment-paypal" value="paypal" v-model="payment.type">
+                                            <label class="icon-paypal" for="payment_methods_paypal">Paypal</label>
+                                            <div class="tab-paypal">
+                                                <div class="paypal_confirmation">
+                                                    <span class="icon-check-white"></span>
+                                                    <p>Your donation will be processed via PayPal</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> <!-- end payment methods section -->
+                                    <div class="addresses fieldset">
+                                        <h3>Billing Address</h3>
+                                        <div class="expanding_fieldset">
+                                            <input type="checkbox" tabindex="-1" name="expanding_trigger-shipping_address" id="expanding_trigger-shipping_address" class="expanding_trigger">
+                                            <label class="expanding_input" for="expanding_trigger-shipping_address">Address*</label>
+                                            <div class="fieldset">
+                                                <span class="float-input">
+                                                    <input type="text" id="shipping_street" name="shipping_street" autocomplete="shipping street-address" v-model="shipping.street" :class="{ 'has_value': shipping.street }">
+                                                    <label for="shipping_street">Street*</label>
+                                                    <span class="msg">Include apartment number or other secondary information.</span>
+                                                </span>
+                                                <span class="float-input invalid">
+                                                    <select id="shipping_country" name="shipping_country" autocomplete="shipping country" v-model="shipping.country" :class="{ 'has_value': shipping.country }">
+                                                        <option value=""></option>
+                                                        <option value="us">United States</option>
+                                                        <option value="ca">Canada</option>
+                                                    </select>
+                                                    <label for="shipping_country">Country*</label>
+                                                </span>
+                                                <span class="inline-inputs">
+                                                    <span class="float-input">
+                                                        <input type="text" id="shipping_city" name="shipping_city" autocomplete="shipping address-level2" v-model="shipping.city" :class="{ 'has_value': shipping.city }">
+                                                        <label for="shipping_city">City*</label>
+                                                    </span>
+                                                    <span class="float-input invalid">
+                                                        <select id="shipping_state" name="shipping_state" autocomplete="shipping address-level1" v-model="shipping.state" :class="{ 'has_value': shipping.state }">
+                                                            <option value=""></option>
+                                                            <option v-for="state in stateArray" :value="state">{{ state }}</option>
+                                                        </select>
+                                                        <label for="shipping_state">State*</label>
+                                                    </span>
+                                                    <span class="float-input">
+                                                        <input type="text" id="shipping_postal_code" name="shipping_postal_code" autocomplete="shipping postal-code" v-model="shipping.zip" :class="{ 'has_value': shipping.zip }">
+                                                        <label for="shipping_postal_code">Zip Code*</label>
+                                                    </span>
+                                                </span>
+                                                <div class="expanding_fieldset">
+                                                    <input type="checkbox" name="expanding_trigger-mailing_address" id="expanding_trigger-mailing_address" class="expanding_checkbox expanding_trigger-reverse" disabled="">
+                                                    <label class="expanding_label" for="expanding_trigger-mailing_address">This will be used as shipping address if you choose a gift</label>
+                                                    <div class="fieldset">
+                                                        <h3>Mailing Address</h3>
+                                                        <div class="fieldset">
+                                                            <span class="float-input">
+                                                                <input type="text" id="mailing_street" name="mailing_street" tabindex="-1" autocomplete="billing street-address" v-model="billing.street" :class="{ 'has_value': billing.street }">
+                                                                <label for="mailing_street">Street</label>
+                                                                <span class="msg">Include apartment number or other secondary information.</span>
+                                                            </span>
+                                                            <span class="static-input">
+                                                                <select id="mailing_country" name="mailing_country" tabindex="-1" autocomplete="billing country" v-model="billing.country" :class="{ 'has_value': billing.country }">
+                                                                    <option value=""></option>
+                                                                    <option value="us">United States</option>
+                                                                    <option value="ca">Canada</option>
+                                                                </select>
+                                                                <label for="mailing_country">Country</label>
+                                                            </span>
+                                                            <span class="inline-inputs">
+                                                                <span class="float-input">
+                                                                    <input type="text" id="mailing_city" name="mailing_city" tabindex="-1" autocomplete="billing address-level2" v-model="billing.city" :class="{ 'has_value': billing.city }">
+                                                                    <label for="mailing_city">City</label>
+                                                                </span>
+                                                                <span class="float-input">
+                                                                    <select id="mailing_state" name="mailing_state" tabindex="-1" autocomplete="billing address-level1" v-model="billing.state" :class="{ 'has_value': billing.state }">
+                                                                        <option value=""></option>
+                                                                        <option v-for="state in stateArray" :value="state">{{ state }}</option>
+                                                                    </select>
+                                                                    <label for="mailing_state">State*</label>
+                                                                </span>
+                                                                <span class="float-input">
+                                                                    <input type="text" id="mailing_postal_code" name="mailing_postal_code" tabindex="-1" autocomplete="billing postal-code" v-model="billing.zip" :class="{ 'has_value': billing.zip }">
+                                                                    <label for="mailing_postal_code">Postal Code*</label>
+                                                                </span>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <span class="float-input">
+                                                    <input type="text" id="phone_number" name="phone_number" autocomplete="shipping phone-number" v-model="donorPhone" :class="{ 'has_value': donorPhone }">
+                                                    <label for="phone_number">Phone Number</label>
+                                                    <span class="msg">format: 1234567890</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div> <!-- End of billing address section -->
+                                    <div class="dtd_company_match expanding_fieldset">
+                                        <h3>See if your employer will match your giving</h3>
+                                        <div id="dd-company-name-input" data-doublethedonation-widget-id="G__2">
+                                            <div class="dtd-streamlined-plugin">
+                                                <input type="hidden" name="doubledonation_status" value="no_interaction">
+                                                <input type="hidden" name="doublethedonation_status" value="no_interaction">
+                                                <input type="hidden" name="doublethedonation_entered_text">
+                                                <input type="hidden" name="doubledonation_company_id">
+                                                <input type="hidden" name="doublethedonation_company_id">
+                                                <input type="hidden" name="doubledonation_company_name">
+                                                <input type="hidden" name="doublethedonation_company_name">
+                                                <div class="dtd-search-box" style="width: 100%; margin-bottom: 0px;">
+                                                    <div aria-live="assertive" style="display: block; font-size: 0px; color: rgb(255, 255, 255); opacity: 0; position: absolute; height: 0px; margin: 0px; z-index: -99999;"></div>
+                                                    <div aria-live="polite" style="display: block; font-size: 0px; color: rgb(255, 255, 255); opacity: 0; position: absolute; height: 0px; margin: 0px; z-index: -99999;">
+                                                    </div>
+                                                    <input role="listbox" aria-expanded="false" name="doublethedonation_company_name_input" type="text" id="dd-input" class="dtd-search-input form-control" autocomplete="off" aria-label="Search company" style="width: 100%;" placeholder="Search company name...">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p>Company gift matching is a quick and easy way to double your support to KUOW. To start this process, please enter your company name above.</p>
+                                    </div> <!-- End DTD section -->
+                                    <div class="donation-choose_gift fancy_form">
+                                        <h3>Choose Your Gift</h3>
+                                        <ul class="radio-set">
+                                            <li class="radio-input">
+                                                <input type="radio" id="no_gift" value="no_gift" v-model="giftSelection">
+                                                <label for="no_gift">No gift</label>
+                                            </li>
+                                            <li class="radio-input">
+                                                <input type="radio" id="choose_gift" value="choose_gift" v-model="giftSelection">
+                                                <label for="choose_gift">Choose Gift</label>
+                                            </li>
+                                        </ul>
+                                        <p class="gift-banner" v-if="giftSelection === 'no_gift'">100% support for KUOW. Thank you!</p>
+                                        <div class="gift-carousel" v-if="giftSelection === 'choose_gift'">
+                                            <p class="delivery-notification">Please allow 2-4 weeks for digital thank-you gift delivery and 6-8 weeks for physical thank-you gifts.</p>
+                                            <div class="carousel_wrapper">
+                                                <div class="slide gift unlocked">
+                                                    <div class="gift_details">
+                                                        <figure>
+                                                            <div class="state" v-if="donationAmount >= 10">
+                                                                <span class="icon-gift-unlocked"></span>Unlocked
+                                                            </div>
+                                                            <div class="state" v-if="donationAmount < 10">
+                                                                <span class="icon-gift-locked"></span><b>${{ 10 - donationAmount }}</b> more to claim
+                                                            </div>
+                                                            <img src="https://kuow-prod.imgix.net/store/ef2db3433cc8c78a1763fe408f10e756.png?auto=format&amp;dpr=1&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=330&amp;h=330" srcset="https://kuow-prod.imgix.net/store/ef2db3433cc8c78a1763fe408f10e756.png?auto=format&amp;dpr=2&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=330&amp;h=330 2x, https://kuow-prod.imgix.net/store/ef2db3433cc8c78a1763fe408f10e756.png?auto=format&amp;dpr=3&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=330&amp;h=330 3x">
+                                                        </figure>
+                                                        <figcaption>
+                                                            <h3>NPR 50th Tote </h3>
+                                                            <h5>$10 monthly donation</h5>
+                                                            <dl>
+                                                                <span class="icon-gift-info"></span>
+                                                                <dt>Fair Market Value:</dt>
+                                                                <dd>$18</dd>
+                                                            </dl>
+                                                        </figcaption>
+                                                        <button class="gift-choose" @click="showGiftModal">Choose Gift!</button>
+                                                    </div>
+                                                </div>
+                                                <div class="slide gift unlocked">
+                                                    <div class="gift_details">
+                                                        <figure>
+                                                            <div class="state" v-if="donationAmount >= 5">
+                                                                <span class="icon-gift-unlocked"></span>Unlocked
+                                                            </div>
+                                                            <div class="state" v-if="donationAmount < 5">
+                                                                <span class="icon-gift-locked"></span><b>${{ 5 - donationAmount }}</b> more to claim
+                                                            </div>
+                                                            <img src="https://kuow-prod.imgix.net/store/b070b513337bf206206778a0a742b79d.png?auto=format&amp;dpr=1&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=330&amp;h=330" srcset="https://kuow-prod.imgix.net/store/b070b513337bf206206778a0a742b79d.png?auto=format&amp;dpr=2&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=330&amp;h=330 2x, https://kuow-prod.imgix.net/store/b070b513337bf206206778a0a742b79d.png?auto=format&amp;dpr=3&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=330&amp;h=330 3x">
+                                                        </figure>
+                                                        <figcaption>
+                                                            <h3>NPR 50th Mug</h3>
+                                                            <h5>$5 monthly donation</h5>
+                                                            <dl>
+                                                                <span class="icon-gift-info"></span>
+                                                                <dt>Fair Market Value:</dt>
+                                                                <dd>$10</dd>
+                                                            </dl>
+                                                        </figcaption>
+                                                        <button class="gift-choose">Choose Gift!</button>
+                                                    </div>
+                                                </div>
+                                                <div class="slide gift unlocked">
+                                                    <div class="gift_details">
+                                                        <figure>
+                                                            <div class="state" v-if="donationAmount >= 10">
+                                                                <span class="icon-gift-unlocked"></span>Unlocked
+                                                            </div>
+                                                            <div class="state" v-if="donationAmount < 10">
+                                                                <span class="icon-gift-locked"></span><b>${{ 10 - donationAmount }}</b> more to claim
+                                                            </div>
+                                                            <img src="https://kuow-prod.imgix.net/store/6bc5ec3cb4e45396046e569efe343774.png?auto=format&amp;dpr=1&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=330&amp;h=330" srcset="https://kuow-prod.imgix.net/store/6bc5ec3cb4e45396046e569efe343774.png?auto=format&amp;dpr=2&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=330&amp;h=330 2x, https://kuow-prod.imgix.net/store/6bc5ec3cb4e45396046e569efe343774.png?auto=format&amp;dpr=3&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=330&amp;h=330 3x">
+                                                        </figure>
+                                                        <figcaption>
+                                                            <h3>NPR Nerd T-Shirt</h3>
+                                                            <h5>$10 monthly donation</h5>
+                                                            <dl>
+                                                                <span class="icon-gift-info"></span>
+                                                                <dt>Fair Market Value:</dt>
+                                                                <dd>$23</dd>
+                                                            </dl>
+                                                        </figcaption>
+                                                        <button class="gift-choose">Choose Gift!</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> <!-- end gift section -->
+                                    <div class="footer">
+                                        <div class="mini_cart">
+                                            <h4>Donation Summary</h4>
+                                            <div class="donation-summary">
+                                                <span class="amount">${{ donationAmount }} <i v-if="donationFrequency === 'monthly'">per month</i></span>
+                                            </div>
+                                            <button type="submit">Complete Donation</button>
+                                        </div>
+                                    </div> <!-- end footer/donation complete section -->
+                                </section>
+                            </form>
+                        </div>
+                        <section class="donation-support">
+                            <div class="questions">
+                                <h4>Need help or have a question?</h4>
+                                <ul>
+                                    <li>
+                                        <h5>Does KUOW support company matching?</h5>
+                                        <p>Yes! Use the company match search tool on the donation page above to see if your employer is already set up to accept matching gifts through our automated system, or you can download a packet (<a href="https://kuow-prod.imgix.net/store/5f442cb3ba28d3f8aaceb5bacd259a04.pdf">PDF</a>) to take to your HR representative to see if your gift can be matched.</p>
+                                    </li>
+                                    <li>
+                                        <h5>Can I edit my monthly Evergreen donation after checkout?</h5>
+                                        <p>If you’d like to change the amount of your monthly gift, please use the donation form as if you were starting a new gift from scratch. Your prior monthly gift will be canceled and replaced. If you need to update your credit card information, please email <a href="mailto:evergreen@kuow.org">evergreen@kuow.org</a> or call <a href="tel:2062212501">206.221.2501</a>.</p>
+                                    </li>
+                                    <li>
+                                        <h5>How long does it take to receive my thank-you gift?</h5>
+                                        <p>Physical thank-you gifts are sent out within 6-8 weeks, and any digital delivery thank-you gifts will be sent out via email in 2-4 weeks. Please contact our Membership team at <a href="tel:2062212501">206.221.2501</a> if you have questions about the status of your gift.</p>
+                                    </li>
+                                    <li>
+                                        <h5>What do you do with my donor information?</h5>
+                                        <p>Your privacy is important to KUOW. Please read our <a href="/kuow-donor-privacy-policy">donor privacy policy</a> to learn how we collect and use your information.</p>
+                                    </li>
+                                </ul>
+                            </div>
+                            <ul class="security">
+                                <li>
+                                    <img alt="VeriSign logo" class="verisign" src="/assets/donations/verisign-24e0217c139d03c1903e5ecf7031f5a5b5e3dd0ea04731112636c5bf7972e2d6.png" />
+                                </li>
+                                <li>
+                                    <a target="_blank" href="https://www.charitynavigator.org/index.cfm?bay=search.summary&amp;orgid=9762#.VeBUJNNVikp">
+                                        <img alt="Charity Star badge" class="charity_star" src="/assets/donations/charity_star-84f0ba2303724d17e2d7154c0601c53e0d103433a78c95bfe969209e22f6b404.png" />
+                                    </a>
+                                </li>
+                                <ul>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- placeholder for more condition -->
+    <footer id="site-footer">
+        <section id="site-footer-ctas" aria-label="footer call to actions">
+            <div class="bound">
+                <section class="cta_newsletter" aria-label="sign up for newsletter">
+                    <h4>Connect With Us</h4>
+                    <p>Get a quick look at the most important local stories of the day with KUOW's Today So Far newsletter.</p>
+                    <div data-react-class="NewsletterForm" data-react-props="{&quot;prompt&quot;:&quot;Send&quot;,&quot;inverted&quot;:false,&quot;sfmc_content_id&quot;:&quot;sign-up-today-so-far&quot;}"></div>
+                </section>
+                <section class="cta_events" aria-labelledby="cta_events">
+                    <div class="title">
+                        <h4 id="cta_events">Upcoming Events</h4>
+                        <a href="/events" class="view_all" aria-label="view all events">View All</a>
+                    </div>
+                    <ul>
+                        <li>
+                            <a href="https://btt.boldtypetickets.com/events/112826808/savage-love-from-a-to-z" target="_blank">
+                                <time class="date"><i>Sep</i><b>24</b></time>
+                                <span class="info">
+                                    <time class="time"> 7:00 pm</time>
+                                    <!-- TODO: Implement a way to truncate this text at 3 lines. Most likely clamp.js -->
+                                    <h5 class="name">The Stranger &amp; KUOW Present: Savage Love From A to Z</h5>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.eventbrite.com/e/wburs-on-point-presents-the-prime-effect-tickets-168494404299" target="_blank">
+                                <time class="date"><i>Sep</i><b>27</b></time>
+                                <span class="info">
+                                    <time class="time"> 3:30 pm</time>
+                                    <!-- TODO: Implement a way to truncate this text at 3 lines. Most likely clamp.js -->
+                                    <h5 class="name">WBUR&#39;s On Point Presents: The Prime Effect</h5>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://seattlecityclub.org/wsdc/" target="_blank">
+                                <time class="date"><i>Oct</i><b>14</b></time>
+                                <span class="info">
+                                    <time class="time"> 7:00 pm</time>
+                                    <!-- TODO: Implement a way to truncate this text at 3 lines. Most likely clamp.js -->
+                                    <h5 class="name">Seattle Mayoral Debates</h5>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </section>
+                <section class="cta_download" aria-labelledby="cta_download">
+                    <span class="img">
+                        <img width="140" alt="KUOW App on iPhone" src="/assets/content/Download_Mockup-8495b7c313bbe9d7a16cb96c9ecc2d3f40fb0d9f90badc69788c9a51b9bf85d1.png" />
+                    </span>
+                    <span class="info">
+                        <h4 id="cta_download">Listen to the stories you care about in our mobile app</h4>
+                        <a href="https://itunes.apple.com/us/app/kuow-news-and-information/id450248556?mt=8" class="btn-app_store" target="_blank">
+                            <span class="logo"><img alt="Apple App Store Download Icon" src="/assets/icons/Misc/Apple-951185c124b97c8bbe6ae42d0208e52c7d1592e924b858c95b56f891a3b2887c.svg" /></span>
+                            <span class="txt">
+                                <i>Download from</i>
+                                <b>App Store</b>
+                            </span>
+                        </a>
+                        <a href="https://play.google.com/store/apps/details?id=com.skyblue.pra.kuow&amp;hl=en_US" class="btn-play_store" target="_blank">
+                            <span class="logo"><img alt="Google Play Icon" src="/assets/icons/Misc/Google_Play-63a0a53ff1416b88e9f375738c1076a2a00285b6555ef7e9ff97ae211e48df10.svg" /></span>
+                            <span class="txt">
+                                <i>Get it on</i>
+                                <b>Play Store</b>
+                            </span>
+                        </a>
+                    </span>
+                </section>
+            </div>
+        </section>
+        <section id="site-footer-nav">
+            <div class="bound">
+                <section class="about_kuow">
+                    <span class="logos">
+                        <img width="158" class="kuow" alt="KUOW Logo" src="/assets/content/KUOW-outlined-1ec7b3bc571620b6dcea03bcdfdb72898888e6be5b848ef38ddbe1cdc5f72db9.svg" />
+                        <img width="88" class="npr" alt="NPR Logo" src="/assets/content/NPR-inverted-083b256abda498cc404ddf9bbe757e0215084844a895e4f9bc7ad3cf064301c8.svg" />
+                    </span>
+                    <p>KUOW is the Puget Sound region’s #1 radio station for news. Our independent, nonprofit newsroom produces award-winning stories, podcasts and events.</p>
+                    <ul class="links">
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/staff">Staff</a></li>
+                        <li><a href="/board-directors">Board</a></li>
+                    </ul>
+                    <ul class="social_links">
+                        <li><a href="https://www.facebook.com/kuowpublicradio/" target="_blank" class="btn-social-fb">KUOW on Facebook</a></li>
+                        <li><a href="https://www.instagram.com/kuow/" target="_blank" class="btn-social-in">KUOW on Instagram</a></li>
+                        <li><a href="https://twitter.com/KUOW" target="_blank" class="btn-social-tw">KUOW on Twitter</a></li>
+                        <li><a href="https://www.youtube.com/user/KUOW949" target="_blank" class="btn-social-yt">KUOW on YouTube</a></li>
+                    </ul>
+                </section>
+                <nav class="nav_inside">
+                    <h5><a href="/about">Inside KUOW</a></h5>
+                    <ul>
+                        <li><a onclick="reactBridge.showContact('contact')">Contact Us / Feedback</a></li>
+                        <li><a href="/secure-news-tips">Secure News Tips</a></li>
+                        <li><a href="/careers">Careers</a></li>
+                        <li><a href="/impact" target="_blank">Impact Report</a></li>
+                        <li><a href="/press">Press</a></li>
+                        <li><a href="https://public.kuow.org/about/KUOW-Schedule.pdf" target="_blank" name="schedule">Schedule (PDF)</a></li>
+                    </ul>
+                </nav>
+                <nav class="nav_support">
+                    <h5><a href="/support">Support</a></h5>
+                    <ul>
+                        <li><a href="/donate">Donate / Become a Member</a></li>
+                        <li><a href="/future">Wills and Estate Planning</a></li>
+                        <li><a href="/donate-your-car">Donate Your Car</a></li>
+                        <li><a href="/gift-securities">Gift of Securities</a></li>
+                        <li><a href="/business">Business Sponsorship</a></li>
+                        <li><a href="/volunteer">Volunteer</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="site-footer-subnav">
+                <div class="bound">
+                    <div class="copywrite">&copy; 2020 KUOW News and Information <span class="version">v1.34.0</span></div>
+                    <ul>
+                        <li><a href="/tags/corrections">Corrections</a></li>
+                        <li><a href="/privacy-policy">Privacy Policy</a></li>
+                        <li><a href="/terms-of-use">Terms of Use</a></li>
+                        <li><a href="/reports" target="_blank">FCC Public File</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </footer>
+    <div data-react-class="ModalContainer" v-if="showingModal">
+      <div class="modal-shade ">
+          <div class="modal-shade-contents">
+              <div class="modal-content-wrapper">
+                  <div class="close-button">
+                      <a class="btn-close" @click="showingModal = false"><i>Close</i><span class="icon"><span></span></span></a>
+                  </div>
+                  <div class="slick-slider gifts-modal-slider slick-initialized" dir="ltr">
+                      <button type="button" data-role="none" class="slick-arrow slick-prev" style="display: block;"> Previous</button>
+                      <div class="slick-list" style="padding: 0px; height: 799px;">
+                          <div class="slick-track" style="width: 3456px; opacity: 1; transform: translate3d(-864px, 0px, 0px);">
+                              <div data-index="-2" tabindex="-1" class="slick-slide slick-cloned" aria-hidden="true" style="width: 432px;">
+                                  <div>
+                                      <div class="modal-donation-add_gift">
+                                          <div class="gift unlocked">
+                                              <figure>
+                                                  <div class="state">
+                                                      <div>
+                                                          <span class="icon-gift-unlocked"></span>Unlocked
+                                                      </div>
+                                                  </div>
+                                                  <img src="https://kuow-prod.imgix.net/store/b070b513337bf206206778a0a742b79d.png?auto=format&amp;dpr=1&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324" srcset="https://kuow-prod.imgix.net/store/b070b513337bf206206778a0a742b79d.png?auto=format&amp;dpr=2&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324 2x, https://kuow-prod.imgix.net/store/b070b513337bf206206778a0a742b79d.png?auto=format&amp;dpr=3&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324 3x">
+                                                  <figcaption>
+                                                      <h3>NPR 50th Mug</h3>
+                                                      <h5>$50 donation</h5>
+                                                      <p>Celebrate NPR's 50th birthday with this exclusive 16 oz. mug featuring the 50th logo, tagline and KUOW logo.</p>
+                                                      <dl>
+                                                          <span class="icon-gift-info"></span>
+                                                          <dt>Fair Market Value:</dt>
+                                                          <dd>$10</dd>
+                                                      </dl>
+                                                  </figcaption>
+                                              </figure>
+                                              <form class="fancy_form">
+                                                  <span class="static-input">
+                                                      <label for="variation">Variation</label>
+                                                      <select name="variation" id="variation">
+                                                          <option value="152">NPR 50th Birthday Mug </option>
+                                                      </select>
+                                                  </span>
+                                                  <div class="footer">
+                                                      <input type="submit" class="add-gift" value="Claim Gift">
+                                                  </div>
+                                              </form>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div data-index="-1" tabindex="-1" class="slick-slide slick-cloned" aria-hidden="true" style="width: 432px;">
+                                  <div>
+                                      <div class="modal-donation-add_gift">
+                                          <div class="gift locked">
+                                              <figure>
+                                                  <div class="state">
+                                                      <div>
+                                                          <span class="icon-gift-locked"></span>
+                                                          <b>$2</b> more to claim</div>
+                                                  </div>
+                                                  <img src="https://kuow-prod.imgix.net/store/6bc5ec3cb4e45396046e569efe343774.png?auto=format&amp;dpr=1&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324" srcset="https://kuow-prod.imgix.net/store/6bc5ec3cb4e45396046e569efe343774.png?auto=format&amp;dpr=2&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324 2x, https://kuow-prod.imgix.net/store/6bc5ec3cb4e45396046e569efe343774.png?auto=format&amp;dpr=3&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324 3x">
+                                                  <figcaption>
+                                                      <h3>NPR Nerd T-Shirt</h3>
+                                                      <h5>$120 donation</h5>
+                                                      <p>Say it loud and proud: I am a public radio nerd! With this t-shirt, everyone will know you're not only informed by some of the best local and national news around, but you also supported it with a donation.</p>
+                                                      <dl>
+                                                          <span class="icon-gift-info"></span>
+                                                          <dt>Fair Market Value:</dt>
+                                                          <dd>$23</dd>
+                                                      </dl>
+                                                  </figcaption>
+                                              </figure>
+                                              <form class="fancy_form">
+                                                  <span class="static-input">
+                                                      <label for="variation">Variation</label>
+                                                      <select name="variation" id="variation">
+                                                          <option value="116">Small </option>
+                                                          <option value="117">Medium </option>
+                                                          <option value="118">Large </option>
+                                                          <option value="119">X-Large </option>
+                                                          <option value="120">XX-Large </option>
+                                                      </select>
+                                                  </span>
+                                                  <div class="footer">
+                                                      <input type="submit" class="add-gift" value="Claim Gift">
+                                                      <span class="donation_increase">+$2 </span>
+                                                  </div>
+                                              </form>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div data-index="0" class="slick-slide slick-active slick-center slick-current" tabindex="-1" aria-hidden="false" style="outline: none; width: 432px;">
+                                  <div>
+                                      <div class="modal-donation-add_gift">
+                                          <div class="gift locked">
+                                              <figure>
+                                                  <div class="state">
+                                                      <div>
+                                                          <span class="icon-gift-locked"></span>
+                                                          <b>$2</b> more to claim</div>
+                                                  </div>
+                                                  <img src="https://kuow-prod.imgix.net/store/ef2db3433cc8c78a1763fe408f10e756.png?auto=format&amp;dpr=1&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324" srcset="https://kuow-prod.imgix.net/store/ef2db3433cc8c78a1763fe408f10e756.png?auto=format&amp;dpr=2&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324 2x, https://kuow-prod.imgix.net/store/ef2db3433cc8c78a1763fe408f10e756.png?auto=format&amp;dpr=3&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324 3x">
+                                                  <figcaption>
+                                                      <h3>NPR 50th Tote</h3>
+                                                      <h5>$120 donation</h5>
+                                                      <p>Celebrate NPR's 50th birthday with this exclusive tote bag featuring the 50th logo, tagline and KUOW logo.</p>
+                                                      <dl>
+                                                          <span class="icon-gift-info"></span>
+                                                          <dt>Fair Market Value:</dt>
+                                                          <dd>$18</dd>
+                                                      </dl>
+                                                  </figcaption>
+                                              </figure>
+                                              <form class="fancy_form" @submit.prevent="claimGift(153, 'NPR 50th Birthday Tote Bag')">
+                                                  <span class="static-input">
+                                                      <label for="variation">Variation</label>
+                                                      <select name="variation" id="variation">
+                                                          <option value="153">NPR 50th Birthday Tote Bag</option>
+                                                      </select>
+                                                  </span>
+                                                  <div class="footer">
+                                                      <input type="submit" class="add-gift" value="Claim Gift">
+                                                  </div>
+                                              </form>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div data-index="1" class="slick-slide" tabindex="-1" aria-hidden="true" style="outline: none; width: 432px;">
+                                  <div>
+                                      <div class="modal-donation-add_gift">
+                                          <div class="gift unlocked">
+                                              <figure>
+                                                  <div class="state">
+                                                      <div>
+                                                          <span class="icon-gift-unlocked"></span>Unlocked
+                                                      </div>
+                                                  </div>
+                                                  <img src="https://kuow-prod.imgix.net/store/b070b513337bf206206778a0a742b79d.png?auto=format&amp;dpr=1&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324" srcset="https://kuow-prod.imgix.net/store/b070b513337bf206206778a0a742b79d.png?auto=format&amp;dpr=2&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324 2x, https://kuow-prod.imgix.net/store/b070b513337bf206206778a0a742b79d.png?auto=format&amp;dpr=3&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324 3x">
+                                                  <figcaption>
+                                                      <h3>NPR 50th Mug</h3>
+                                                      <h5>$50 donation</h5>
+                                                      <p>Celebrate NPR's 50th birthday with this exclusive 16 oz. mug featuring the 50th logo, tagline and KUOW logo.</p>
+                                                      <dl>
+                                                          <span class="icon-gift-info"></span>
+                                                          <dt>Fair Market Value:</dt>
+                                                          <dd>$10</dd>
+                                                      </dl>
+                                                  </figcaption>
+                                              </figure>
+                                              <form class="fancy_form">
+                                                  <span class="static-input">
+                                                      <label for="variation">Variation</label>
+                                                      <select name="variation" id="variation">
+                                                          <option value="152">NPR 50th Birthday Mug</option>
+                                                      </select>
+                                                  </span>
+                                                  <div class="footer">
+                                                      <input type="submit" class="add-gift" value="Claim Gift">
+                                                  </div>
+                                              </form>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div data-index="2" class="slick-slide" tabindex="-1" aria-hidden="true" style="outline: none; width: 432px;">
+                                  <div>
+                                      <div class="modal-donation-add_gift">
+                                          <div class="gift locked">
+                                              <figure>
+                                                  <div class="state">
+                                                      <div>
+                                                          <span class="icon-gift-locked"></span>
+                                                          <b>$2</b> more to claim
+                                                      </div>
+                                                  </div>
+                                                  <img src="https://kuow-prod.imgix.net/store/6bc5ec3cb4e45396046e569efe343774.png?auto=format&amp;dpr=1&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324" srcset="https://kuow-prod.imgix.net/store/6bc5ec3cb4e45396046e569efe343774.png?auto=format&amp;dpr=2&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324 2x, https://kuow-prod.imgix.net/store/6bc5ec3cb4e45396046e569efe343774.png?auto=format&amp;dpr=3&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324 3x">
+                                                  <figcaption>
+                                                      <h3>NPR Nerd T-Shirt</h3>
+                                                      <h5>$120 donation</h5>
+                                                      <p>Say it loud and proud: I am a public radio nerd! With this t-shirt, everyone will know you're not only informed by some of the best local and national news around, but you also supported it with a donation.</p>
+                                                      <dl>
+                                                          <span class="icon-gift-info"></span>
+                                                          <dt>Fair Market Value:</dt>
+                                                          <dd>$23</dd>
+                                                      </dl>
+                                                  </figcaption>
+                                              </figure>
+                                              <form class="fancy_form">
+                                                  <span class="static-input">
+                                                      <label for="variation">Variation</label>
+                                                      <select name="variation" id="variation">
+                                                          <option value="116">Small</option>
+                                                          <option value="117">Medium</option>
+                                                          <option value="118">Large</option>
+                                                          <option value="119">X-Large</option>
+                                                          <option value="120">XX-Large</option>
+                                                      </select>
+                                                  </span>
+                                                  <div class="footer">
+                                                      <input type="submit" class="add-gift" value="Claim Gift">
+                                                      <span class="donation_increase">+$2</span>
+                                                  </div>
+                                              </form>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div data-index="3" tabindex="-1" class="slick-slide slick-center slick-cloned" aria-hidden="true" style="width: 432px;">
+                                  <div>
+                                      <div class="modal-donation-add_gift">
+                                          <div class="gift locked">
+                                              <figure>
+                                                  <div class="state">
+                                                      <div>
+                                                          <span class="icon-gift-locked"></span>
+                                                          <b>$2</b> more to claim
+                                                      </div>
+                                                  </div>
+                                                  <img src="https://kuow-prod.imgix.net/store/ef2db3433cc8c78a1763fe408f10e756.png?auto=format&amp;dpr=1&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324" srcset="https://kuow-prod.imgix.net/store/ef2db3433cc8c78a1763fe408f10e756.png?auto=format&amp;dpr=2&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324 2x, https://kuow-prod.imgix.net/store/ef2db3433cc8c78a1763fe408f10e756.png?auto=format&amp;dpr=3&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324 3x">
+                                                  <figcaption>
+                                                      <h3>NPR 50th Tote </h3>
+                                                      <h5>$120 donation</h5>
+                                                      <p>Celebrate NPR's 50th birthday with this exclusive tote bag featuring the 50th logo, tagline and KUOW logo.</p>
+                                                      <dl>
+                                                          <span class="icon-gift-info"></span>
+                                                          <dt>Fair Market Value:</dt>
+                                                          <dd>$18</dd>
+                                                      </dl>
+                                                  </figcaption>
+                                              </figure>
+                                              <form class="fancy_form">
+                                                  <span class="static-input">
+                                                      <label for="variation">Variation</label>
+                                                      <select name="variation" id="variation">
+                                                          <option value="153">NPR 50th Birthday Tote Bag</option>
+                                                      </select>
+                                                  </span>
+                                                  <div class="footer">
+                                                      <input type="submit" class="add-gift" value="Claim Gift">
+                                                      <span class="donation_increase">+$2</span>
+                                                  </div>
+                                              </form>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div data-index="4" tabindex="-1" class="slick-slide slick-cloned" aria-hidden="true" style="width: 432px;">
+                                  <div>
+                                      <div class="modal-donation-add_gift">
+                                          <div class="gift unlocked">
+                                              <figure>
+                                                  <div class="state">
+                                                      <div>
+                                                          <span class="icon-gift-unlocked"></span>Unlocked
+                                                      </div>
+                                                  </div>
+                                                  <img src="https://kuow-prod.imgix.net/store/b070b513337bf206206778a0a742b79d.png?auto=format&amp;dpr=1&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324" srcset="https://kuow-prod.imgix.net/store/b070b513337bf206206778a0a742b79d.png?auto=format&amp;dpr=2&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324 2x, https://kuow-prod.imgix.net/store/b070b513337bf206206778a0a742b79d.png?auto=format&amp;dpr=3&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324 3x">
+                                                  <figcaption>
+                                                      <h3>NPR 50th Mug</h3>
+                                                      <h5>$50 donation</h5>
+                                                      <p>Celebrate NPR's 50th birthday with this exclusive 16 oz. mug featuring the 50th logo, tagline and KUOW logo.</p>
+                                                      <dl>
+                                                          <span class="icon-gift-info"></span>
+                                                          <dt>Fair Market Value:</dt>
+                                                          <dd>$10</dd>
+                                                      </dl>
+                                                  </figcaption>
+                                              </figure>
+                                              <form class="fancy_form">
+                                                  <span class="static-input">
+                                                      <label for="variation">Variation</label>
+                                                      <select name="variation" id="variation">
+                                                          <option value="152">NPR 50th Birthday Mug</option>
+                                                      </select>
+                                                  </span>
+                                                  <div class="footer">
+                                                      <input type="submit" class="add-gift" value="Claim Gift">
+                                                  </div>
+                                              </form>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div data-index="5" tabindex="-1" class="slick-slide slick-cloned" aria-hidden="true" style="width: 432px;">
+                                  <div>
+                                      <div class="modal-donation-add_gift">
+                                          <div class="gift locked">
+                                              <figure>
+                                                  <div class="state">
+                                                      <div>
+                                                          <span class="icon-gift-locked"></span>
+                                                          <b>$2</b> more to claim
+                                                      </div>
+                                                  </div>
+                                                  <img src="https://kuow-prod.imgix.net/store/6bc5ec3cb4e45396046e569efe343774.png?auto=format&amp;dpr=1&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324" srcset="https://kuow-prod.imgix.net/store/6bc5ec3cb4e45396046e569efe343774.png?auto=format&amp;dpr=2&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324 2x, https://kuow-prod.imgix.net/store/6bc5ec3cb4e45396046e569efe343774.png?auto=format&amp;dpr=3&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=380&amp;h=324 3x">
+                                                  <figcaption>
+                                                      <h3>NPR Nerd T-Shirt</h3>
+                                                      <h5>$120 donation</h5>
+                                                      <p>Say it loud and proud: I am a public radio nerd! With this t-shirt, everyone will know you're not only informed by some of the best local and national news around, but you also supported it with a donation.</p>
+                                                      <dl>
+                                                          <span class="icon-gift-info"></span>
+                                                          <dt>Fair Market Value:</dt>
+                                                          <dd>$23</dd>
+                                                      </dl>
+                                                  </figcaption>
+                                              </figure>
+                                              <form class="fancy_form">
+                                                  <span class="static-input">
+                                                      <label for="variation">Variation</label>
+                                                      <select name="variation" id="variation">
+                                                          <option value="116">Small</option>
+                                                          <option value="117">Medium</option>
+                                                          <option value="118">Large</option>
+                                                          <option value="119">X-Large</option>
+                                                          <option value="120">XX-Large</option>
+                                                      </select>
+                                                  </span>
+                                                  <div class="footer">
+                                                      <input type="submit" class="add-gift" value="Claim Gift">
+                                                      <span class="donation_increase">+$2</span>
+                                                  </div>
+                                              </form>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      <button type="button" data-role="none" class="slick-arrow slick-next" style="display: block;">Next</button>
+                  </div>
+              </div>
+          </div>
+      </div>
+    </div> <!-- end main -->
+  </div>
+  <script src="https://doublethedonation.com/api/js/ddplugin.js"></script>
+  <link href="https://doublethedonation.com/api/css/ddplugin.css" rel="stylesheet" />
+  <script src="idonate-app.js"></script>
+</body>
+
+</html>
