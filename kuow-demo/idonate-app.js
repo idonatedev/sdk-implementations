@@ -128,7 +128,7 @@ var idonateApp = new Vue({
 		                paymentGatewayId: config.paymentGatewayId,
 		                paymentMethodId: paymentMethodResult.paymentMethodId,
 		                recurringFrequency: this.mapDonationFrequency(),
-		                paymentAmount: donationAmount,
+		                paymentAmount: this.donationAmount,
 		                currency: 'USD',
 		                billingContact: billingContact,
 		                billingAddress: billingAddress,
