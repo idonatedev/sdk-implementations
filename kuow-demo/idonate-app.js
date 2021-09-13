@@ -173,7 +173,7 @@ var idonateApp = new Vue({
 			grecaptcha.render('recaptcha-wrapper', {
 				"class": "g-recaptcha",
 				"sitekey": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
-				"callback": "handleDonation",
+				"callback": this.handleDonation,
 				"size": "invisible"
 			});
 		}, 500);
