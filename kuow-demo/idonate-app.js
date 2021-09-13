@@ -1,7 +1,18 @@
 //initial configuration
+// Org - Interplanetary Castle of Waffles
+// var config = {
+//     organizationId: '2aa2e362-51aa-483d-bedd-645ae18cc1f3', //this
+//     paymentGatewayId: 'f21c29e4-1a8f-46a1-b1d8-01b5ccc2363d', //and this must correspond with one another
+//     enableSandboxMode: true, //set to false for prod
+//     recaptchaType: 'organization', //this is also important.
+//     spreedlyEnvironmentKey: 'KCE4DaaycL92NvslhfVUNbWgioC', //ask your sysadmin for this
+// };
+
+//initial configuration
+// Org - Child Hunger Fund
 var config = {
-    organizationId: '2aa2e362-51aa-483d-bedd-645ae18cc1f3', //this
-    paymentGatewayId: 'f21c29e4-1a8f-46a1-b1d8-01b5ccc2363d', //and this must correspond with one another
+    organizationId: 'fdca0c74-1f83-4b6c-afd9-ac265d8f0a52', //this
+    paymentGatewayId: '3bf1c8bf-5631-46c4-9296-d71527169688', //and this must correspond with one another
     enableSandboxMode: true, //set to false for prod
     recaptchaType: 'organization', //this is also important.
     spreedlyEnvironmentKey: 'KCE4DaaycL92NvslhfVUNbWgioC', //ask your sysadmin for this
