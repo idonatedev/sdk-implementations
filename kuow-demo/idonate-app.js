@@ -118,7 +118,7 @@ var idonateApp = new Vue({
 		                contact: billingContact,
 		                address: billingAddress
 		            });
-				}).then((paymentResult) => {
+				}).then((paymentMethodResult) => {
 					return idonateClient.createTransaction({
 		                //RecaptchaSecuredRequest type
 		                recaptchaType: config.recaptchaType,
