@@ -706,7 +706,7 @@
                                                       </dl>
                                                   </figcaption>
                                               </figure>
-                                              <form class="fancy_form" @submit.prevent="claimGift(153, 'NPR 50th Birthday Tote Bag')">
+                                              <form class="fancy_form" @submit.prevent.stop="claimGift(153, 'NPR 50th Birthday Tote Bag')">
                                                   <span class="static-input">
                                                       <label for="variation">Variation</label>
                                                       <select name="variation" id="variation">
