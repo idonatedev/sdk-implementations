@@ -147,10 +147,10 @@ var idonateApp = new Vue({
 		                corporateMatchingId: -1
 		            }
 
-		            if (gift.id > 0) {
+		            if (this.gift.id > 0) {
 		            	transactionObj.customerMeta =  {
-		            		giftId: gift.id,
-		            		giftName: gift.text
+		            		giftId: this.gift.id,
+		            		giftName: this.gift.text
 		            	};
 		            }
 
