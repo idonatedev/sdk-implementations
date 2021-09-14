@@ -154,7 +154,7 @@ var idonateApp = new Vue({
 		            	};
 		            }
 
-					return idonateClient.createTransaction();
+					return idonateClient.createTransaction(transactionObj);
 				}).then((createTransactionResult) => {
 					console.log("Transaction created, ", createTransactionResult);
 				});
