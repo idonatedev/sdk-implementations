@@ -148,7 +148,7 @@ var idonateApp = new Vue({
 		            }
 
 		            if (gift.id > 0) {
-		            	transactionObj.customerMeta: {
+		            	transactionObj.customerMeta =  {
 		            		giftId: gift.id,
 		            		giftName: gift.text
 		            	};
