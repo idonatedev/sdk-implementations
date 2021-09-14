@@ -5840,7 +5840,7 @@ input:-webkit-autofill { -webkit-animation-name: autofill; -webkit-animation-fil
 	.donation-choose_gift .gift-carousel .gift:nth-child(even) .gift_details { padding-right: 0 }
 }
 .donation-choose_gift .gift [class^="icon-"], .modal-donation-add_gift .gift [class^="icon-"] { display: inline-block; vertical-align: middle; margin: 0 0.5em 0 0; width: 1.5em; height: 1.5em; background-position: center center; background-size: auto 100%; background-repeat: no-repeat }
-.donation-choose_gift .gift .icon-gift-in_cart, .modal-donation-add_gift .gift .icon-gift-in_cart { background-image: url(/assets/donations/icons/icon-gift-warning-85835fa5bdc5c479df41063d1df619222f43175f41877561280049cd1338e5bb.svg) }
+.donation-choose_gift .gift .icon-gift-in_cart, .modal-donation-add_gift .gift .icon-gift-in_cart { background-image: url(gift_selected.svg) }
 .donation-choose_gift .gift .icon-gift-sold_out, .modal-donation-add_gift .gift .icon-gift-sold_out { background-image: url(/assets/donations/icons/icon-gift-sold-out-70e77c322f4a8450ef995f41ee41926ee954f3cd9b59a2fe75edaab5aa56b339.svg) }
 .donation-choose_gift .gift .icon-gift-locked, .modal-donation-add_gift .gift .icon-gift-locked { background-image: url(gift_locked.svg) }
 .donation-choose_gift .gift .icon-gift-unlocked, .modal-donation-add_gift .gift .icon-gift-unlocked { background-image: url(gift_unlocked.svg) }

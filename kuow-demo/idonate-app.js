@@ -130,7 +130,7 @@ var idonateApp = new Vue({
 		                address: billingAddress
 		            });
 				}).then((paymentMethodResult) => {
-					return idonateClient.createTransaction({
+					var transactionObj = {
 		                //RecaptchaSecuredRequest type
 		                recaptchaType: config.recaptchaType,
 		                recaptchaToken: recaptchaToken,
@@ -143,12 +143,18 @@ var idonateApp = new Vue({
 		                currency: 'USD',
 		                billingContact: billingContact,
 		                billingAddress: billingAddress,
-		                customerMeta: { // TODO - is this where we can temporarily store gift id/title?
-		                    yourFieldName: 'value'
-		                }, 
 		                recaptchaToken: recaptchaToken, // TODO - do we support no recaptcha?\
 		                corporateMatchingId: -1
-		            });
+		            }
+
+		            if (gift.id > 0) {
+		            	transactionObj.customerMeta: {
+		            		giftId: gift.id,
+		            		giftName: gift.text
+		            	};
+		            }
+
+					return idonateClient.createTransaction();
 				}).then((createTransactionResult) => {
 					console.log("Transaction created, ", createTransactionResult);
 				});

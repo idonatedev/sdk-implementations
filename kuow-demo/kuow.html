@@ -338,14 +338,17 @@
                                         <div class="gift-carousel" v-if="giftSelection === 'choose_gift'">
                                             <p class="delivery-notification">Please allow 2-4 weeks for digital thank-you gift delivery and 6-8 weeks for physical thank-you gifts.</p>
                                             <div class="carousel_wrapper">
-                                                <div class="slide gift unlocked">
+                                                <div class="slide gift unlocked" :class="{ 'in_cart': gift.id >= 0 }">
                                                     <div class="gift_details">
                                                         <figure>
-                                                            <div class="state" v-if="donationAmount >= 10">
+                                                            <div class="state" v-if="gift.id < 0 && donationAmount >= 10">
                                                                 <span class="icon-gift-unlocked"></span>Unlocked
                                                             </div>
-                                                            <div class="state" v-if="donationAmount < 10">
+                                                            <div class="state" v-if="gift.id < 0 && donationAmount < 10">
                                                                 <span class="icon-gift-locked"></span><b>${{ 10 - donationAmount }}</b> more to claim
+                                                            </div>
+                                                            <div class="state" v-if="gift.id === 153">
+                                                                <span class="icon-gift-in_cart"></span>In Cart
                                                             </div>
                                                             <img src="https://kuow-prod.imgix.net/store/ef2db3433cc8c78a1763fe408f10e756.png?auto=format&amp;dpr=1&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=330&amp;h=330" srcset="https://kuow-prod.imgix.net/store/ef2db3433cc8c78a1763fe408f10e756.png?auto=format&amp;dpr=2&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=330&amp;h=330 2x, https://kuow-prod.imgix.net/store/ef2db3433cc8c78a1763fe408f10e756.png?auto=format&amp;dpr=3&amp;crop=faces&amp;fit=fill&amp;fill=solid&amp;w=330&amp;h=330 3x">
                                                         </figure>
@@ -358,7 +361,11 @@
                                                                 <dd>$18</dd>
                                                             </dl>
                                                         </figcaption>
-                                                        <button class="gift-choose" @click="showGiftModal">Choose Gift!</button>
+                                                        <span class="gift-in_cart" v-if="gift.id === 153">
+                                                            <span class="icon-gift-in_cart"></span>In Cart
+                                                        </span>
+                                                        <button class="gift-choose" @click="showGiftModal" v-if="gift.id !== 153">{{ donationAmount >= 10  ? 'Choose Gift!' : 'Unlock Gift' }}</button>
+                                                        <button class="gift-add_another" v-if="gift.id > 0 && gift.id === 153">Add another</button>
                                                     </div>
                                                 </div>
                                                 <div class="slide gift unlocked">
@@ -381,7 +388,7 @@
                                                                 <dd>$10</dd>
                                                             </dl>
                                                         </figcaption>
-                                                        <button class="gift-choose">Choose Gift!</button>
+                                                        <button class="gift-choose">{{ donationAmount >= 5  ? 'Choose Gift!' : 'Unlock Gift' }}</button>
                                                     </div>
                                                 </div>
                                                 <div class="slide gift unlocked">
@@ -404,7 +411,7 @@
                                                                 <dd>$23</dd>
                                                             </dl>
                                                         </figcaption>
-                                                        <button class="gift-choose">Choose Gift!</button>
+                                                        <button class="gift-choose">{{ donationAmount >= 10  ? 'Choose Gift!' : 'Unlock Gift' }}</button>
                                                     </div>
                                                 </div>
                                             </div>
