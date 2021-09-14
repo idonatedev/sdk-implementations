@@ -364,7 +364,7 @@
                                                         <span class="gift-in_cart" v-if="gift.id === 153">
                                                             <span class="icon-gift-in_cart"></span>In Cart
                                                         </span>
-                                                        <button class="gift-choose" @click="showGiftModal" v-if="gift.id !== 153">{{ donationAmount >= 10  ? 'Choose Gift!' : 'Unlock Gift' }}</button>
+                                                        <button class="gift-choose" @click.prevent="showGiftModal" v-if="gift.id !== 153">{{ donationAmount >= 10  ? 'Choose Gift!' : 'Unlock Gift' }}</button>
                                                         <button class="gift-add_another" v-if="gift.id > 0 && gift.id === 153">Add another</button>
                                                     </div>
                                                 </div>
