@@ -91,7 +91,7 @@ var idonateApp = new Vue({
 		},
 		handleDonation(recaptchaToken) {
 			console.log("Handling donation in recaptcha callback", this);
-			let billingContact = {
+			var billingContact = {
 				salutation: null,
 				firstName: this.donor.firstName,
 				lastName: this.donor.lastName,
@@ -99,7 +99,7 @@ var idonateApp = new Vue({
 				email: this.donorEmail,
 				primaryPhone: this.donorPhone
 			};
-			let billingAddress = {
+			var billingAddress = {
 				address1: this.billing.street,
 				country: this.billing.country,
 				city: this.billing.city,
@@ -142,7 +142,7 @@ var idonateApp = new Vue({
 		                paymentAmount: this.donationAmount,
 		                currency: 'USD',
 		                billingContact: billingContact,
-		                billingAddress: billingAddress,
+		                billingAddress: `billingAddress`,
 		                recaptchaToken: recaptchaToken, // TODO - do we support no recaptcha?\
 		                corporateMatchingId: -1
 		            }
