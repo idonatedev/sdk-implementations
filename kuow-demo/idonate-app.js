@@ -73,6 +73,7 @@ var idonateApp = new Vue({
 			text: ''
 		},
 		donationComplete: false,
+		donationPending: false,
 		stateArray: [
 			"AK", "AL", "AR", "AZ", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "HI", "IA", "ID", "IL", "IN", "KS",
 			"KY", "LA", "MA", "MD", "ME", "MI", "MN", "MO", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV",
@@ -92,6 +93,7 @@ var idonateApp = new Vue({
 		},
 		handleDonation(recaptchaToken) {
 			console.log("Handling donation in recaptcha callback", this);
+			this.donationPending = true;
 			var billingContact = {
 				salutation: null,
 				firstName: this.donor.firstName,
@@ -161,6 +163,7 @@ var idonateApp = new Vue({
 					return idonateClient.createTransaction(transactionObj);
 				}).then((createTransactionResult) => {
 					console.log("Transaction created, ", createTransactionResult);
+					this.donationPending = false;
 					this.donationComplete = true;
 				});
 			} catch (ex) {

@@ -423,7 +423,7 @@
                                             <div class="donation-summary">
                                                 <span class="amount">${{ donationAmount }} <i v-if="donationFrequency === 'monthly'">per month</i></span>
                                             </div>
-                                            <button type="submit">Complete Donation</button>
+                                            <button type="submit" :disabled="donationPending">Complete Donation</button>
                                         </div>
                                         <h2 v-if="donationComplete">Thank you for your donation!</h2>
                                     </div> <!-- end footer/donation complete section -->
