@@ -143,6 +143,7 @@ var idonateApp = new Vue({
 		                currency: 'USD',
 		                billingContact: billingContact,
 		                billingAddress: `billingAddress`,
+		                customerMeta: {},
 		                recaptchaToken: recaptchaToken, // TODO - do we support no recaptcha?\
 		                corporateMatchingId: -1
 		            }
