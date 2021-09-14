@@ -88,7 +88,6 @@ var idonateApp = new Vue({
 		executeRecaptcha() {
 			console.log("Executing recaptcha", grecaptcha, this);
 			grecaptcha.execute();
-			this.donationComplete = true;
 			console.log("Post recaptcha");
 		},
 		handleDonation(recaptchaToken) {
