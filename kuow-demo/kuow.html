@@ -418,13 +418,14 @@
                                         </div>
                                     </div> <!-- end gift section -->
                                     <div class="footer">
-                                        <div class="mini_cart">
+                                        <div class="mini_cart" v-if=!donationComplete>
                                             <h4>Donation Summary</h4>
                                             <div class="donation-summary">
                                                 <span class="amount">${{ donationAmount }} <i v-if="donationFrequency === 'monthly'">per month</i></span>
                                             </div>
                                             <button type="submit">Complete Donation</button>
                                         </div>
+                                        <h2 v-if="donationComplete">Thank you for your donation!</h2>
                                     </div> <!-- end footer/donation complete section -->
                                 </section>
                             </form>

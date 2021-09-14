@@ -72,6 +72,7 @@ var idonateApp = new Vue({
 			id: -1,
 			text: ''
 		},
+		donationComplete: false,
 		stateArray: [
 			"AK", "AL", "AR", "AZ", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "HI", "IA", "ID", "IL", "IN", "KS",
 			"KY", "LA", "MA", "MD", "ME", "MI", "MN", "MO", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV",
@@ -87,6 +88,7 @@ var idonateApp = new Vue({
 		executeRecaptcha() {
 			console.log("Executing recaptcha", grecaptcha, this);
 			grecaptcha.execute();
+			this.donationComplete = true;
 			console.log("Post recaptcha");
 		},
 		handleDonation(recaptchaToken) {
@@ -160,6 +162,7 @@ var idonateApp = new Vue({
 					return idonateClient.createTransaction(transactionObj);
 				}).then((createTransactionResult) => {
 					console.log("Transaction created, ", createTransactionResult);
+					this.donationComplete = true;
 				});
 			} catch (ex) {
 				console.error(ex);
