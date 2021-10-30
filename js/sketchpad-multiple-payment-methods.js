@@ -108,3 +108,51 @@ function recaptchaCallback(recaptchaToken) {
         handleTheError(e);
     }
 }
+
+var theData = {
+            billingContact: {
+                salutation: null, //required field, workaround is pass null
+                firstName: "",
+                lastName: "",
+                company: null, //see above
+                email: "",
+                primaryPhone: "",
+            },
+
+            billingAddress: {
+                address1: "",
+                country: "",
+                city: "",
+                state: "",
+                zip: "",
+            },
+
+            paymentAmount: 0.0,
+            currency: 'USD', //hard-coded for now
+            recurringFrequency: "once", //default to once
+            customerMeta: {
+                'field1': 'value1',
+                'work': 'please'
+            },
+            //dpf stuff
+            donorPaidFeeAmount: null,
+            dpfActive: false,
+            dpfAmount: 0.0,
+            dpfTotal: 0.0,
+
+            cardData: {
+                cardNumber: "",
+                expirationMonth: "",
+                expirationYear: ""
+            },
+
+            achData:{
+                accountNumber: "", //string
+                routingNumber: "", //string
+
+                accountHolderType: '', //'personal' | 'business'
+                accountType: '' //'checking' | 'savings'
+            },
+
+            paymentMethod:'' //  | 'credit_card'| 'bank_account'
+        };
